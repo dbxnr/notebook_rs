@@ -8,14 +8,35 @@ use std::{
 
 pub mod argparse;
 
+#[derive(Debug)]
+pub enum Args {
+        New,
+}
+
+#[derive(Debug)]
+pub struct UserInput {
+    cmd: Args,
+    text: Option<String>,
+    filename: Option<String>,
+}
+
+impl UserInput {
+    fn new(cmd: Args, text: Option<String>, filename: Option<String>) -> UserInput {
+        UserInput {
+            cmd: cmd,
+            text: text,
+            filename: filename,
+        }
+    }
+}
 
 pub fn write_entry(input: UserInput) -> Result<(), Box<dyn Error>> {
     let mut file = fs::OpenOptions::new()
         .append(true)
         .create(true)
-        .open(input.filename)?;
+        .open("_test.txt")?;
 
-    file.write_all(input.text.as_bytes())?;
+    file.write_all(input.text.unwrap().as_bytes())?;
     file.write_all(b"\n\n")?;
 
     write_to_temp();
@@ -23,7 +44,7 @@ pub fn write_entry(input: UserInput) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn write_to_temp() -> std::io::Result<()> {
+pub fn write_to_temp() -> std::io::Result<()> {
     let editor = var("EDITOR").unwrap();
     let mut file_path = temp_dir();
     file_path.push("editable");
@@ -44,22 +65,3 @@ fn write_to_temp() -> std::io::Result<()> {
 
     Ok(())
 }
-
-pub struct UserInput {
-    filename: String,
-    text: String,
-}
-
-impl UserInput {
-    pub fn new(args: &[String]) -> Result<UserInput, &str> {
-        if args.len() < 3 {
-            return Err("Not enough arguments.");
-        }
-
-        let filename = args[1].clone();
-        let text = args[2].clone();
-
-        Ok(UserInput { filename, text })
-    }
-}
-
