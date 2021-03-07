@@ -10,7 +10,7 @@ pub mod argparse;
 
 #[derive(Debug)]
 pub enum Args {
-        New,
+    New,
 }
 
 #[derive(Debug)]
@@ -28,20 +28,17 @@ impl UserInput {
             filename: filename,
         }
     }
-}
 
-pub fn write_entry(input: UserInput) -> Result<(), Box<dyn Error>> {
-    let mut file = fs::OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open("_test.txt")?;
+    pub fn write_entry(&self) -> Result<(), Box<dyn Error>> {
+        let mut file = fs::OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("_test.txt")?;
 
-    file.write_all(input.text.unwrap().as_bytes())?;
-    file.write_all(b"\n\n")?;
-
-    write_to_temp();
-
-    Ok(())
+        file.write_all(self.text.as_ref().unwrap().as_bytes());
+        file.write_all(b"\n\n")?;
+        Ok(())
+    }
 }
 
 pub fn write_to_temp() -> std::io::Result<()> {
