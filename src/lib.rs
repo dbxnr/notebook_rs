@@ -43,10 +43,13 @@ impl UserInput {
             .create(true)
             .open("_test.txt")?;
 
-        file.write_all(self.timestamp.to_string().as_bytes())?;
-        file.write_all(b"\n")?;
-        file.write_all(self.text.as_ref().unwrap().as_bytes())?;
-        file.write_all(b"\n\n")?;
+        let entry: String = format!(
+            "{}\n{}\n\n",
+            self.timestamp.to_string(),
+            self.text.as_ref().unwrap()
+        );
+
+        file.write_all(entry.as_bytes())?;
         Ok(())
     }
 }
