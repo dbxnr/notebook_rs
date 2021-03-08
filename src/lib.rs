@@ -1,3 +1,4 @@
+use chrono::prelude::{DateTime, Local};
 use std::{
     env::{temp_dir, var},
     error::Error,
@@ -18,14 +19,21 @@ pub struct UserInput {
     cmd: Args,
     text: Option<String>,
     filename: Option<String>,
+    timestamp: DateTime<Local>,
 }
 
 impl UserInput {
-    fn new(cmd: Args, text: Option<String>, filename: Option<String>) -> UserInput {
+    fn new(
+        cmd: Args,
+        text: Option<String>,
+        filename: Option<String>,
+        timestamp: DateTime<Local>,
+    ) -> UserInput {
         UserInput {
             cmd: cmd,
             text: text,
             filename: filename,
+            timestamp: timestamp,
         }
     }
 
@@ -35,7 +43,9 @@ impl UserInput {
             .create(true)
             .open("_test.txt")?;
 
-        file.write_all(self.text.as_ref().unwrap().as_bytes());
+        file.write_all(self.timestamp.to_string().as_bytes())?;
+        file.write_all(b"\n")?;
+        file.write_all(self.text.as_ref().unwrap().as_bytes())?;
         file.write_all(b"\n\n")?;
         Ok(())
     }
