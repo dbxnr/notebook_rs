@@ -51,7 +51,7 @@ impl UserInput {
     }
 }
 
-pub fn write_to_temp() -> std::io::Result<()> {
+pub fn write_to_temp() -> String {
     let editor = var("EDITOR").unwrap();
     let mut file_path = temp_dir();
     file_path.push("editable");
@@ -62,13 +62,13 @@ pub fn write_to_temp() -> std::io::Result<()> {
         .status()
         .expect("Something went wrong with the editor.");
 
-    let mut editable = String::new();
+    let mut text = String::new();
     fs::File::open(&file_path)
         .expect("Couldn't open temp file.")
-        .read_to_string(&mut editable);
+        .read_to_string(&mut text)
+        .expect("Couldn't load file to string.");
 
-    println!("File contents: {}", editable);
-    fs::remove_file(file_path)?;
+    fs::remove_file(file_path).expect("Couldn't remove temp file.");
 
-    Ok(())
+    text
 }

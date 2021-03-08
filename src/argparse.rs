@@ -1,4 +1,4 @@
-use crate::{Args, UserInput};
+use crate::{write_to_temp, Args, UserInput};
 use chrono::prelude::Local;
 use clap::{App, Arg, ArgMatches};
 
@@ -32,7 +32,7 @@ pub fn parse_args(matches: ArgMatches) -> UserInput {
         cmd = Args::New;
 
         text = if matches.index_of("new") == None {
-            "none".to_string()
+            write_to_temp()
         } else {
             matches
                 .values_of("new")
