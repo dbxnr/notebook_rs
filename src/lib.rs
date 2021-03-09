@@ -2,7 +2,7 @@ use chrono::prelude::{DateTime, Local};
 use std::{
     env::{temp_dir, var},
     error::Error,
-    fs,
+    fmt, fs,
     io::prelude::*,
     process::Command,
 };
@@ -29,6 +29,19 @@ impl NewEntry {
     }
 }
 
+impl fmt::Display for NewEntry {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let dt_format = String::from("%A %e %B, %Y - %H:%M");
+
+        write!(
+            f,
+            "{}\n{}\n\n",
+            self.timestamp.format(&dt_format),
+            self.text.as_ref().unwrap()
+        )
+    }
+}
+
 #[derive(Debug)]
 pub struct Journal {
     pub cmd: Args,
@@ -51,13 +64,7 @@ impl Journal {
             .create(true)
             .open("_test.txt")?;
 
-        let entry: String = format!(
-            "{}\n{}\n\n",
-            entry.timestamp.format(&self.dt_format),
-            entry.text.as_ref().unwrap()
-        );
-
-        file.write_all(entry.as_bytes())?;
+        file.write_all(format!("{}", entry).as_bytes())?;
         Ok(())
     }
 }
