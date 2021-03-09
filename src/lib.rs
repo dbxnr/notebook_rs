@@ -6,6 +6,7 @@ use std::{
     io::prelude::*,
     process::Command,
 };
+use vader_sentiment::SentimentIntensityAnalyzer;
 
 pub mod argparse;
 
@@ -18,6 +19,7 @@ pub enum Args {
 pub struct NewEntry {
     text: Option<String>,
     timestamp: DateTime<Local>,
+    score: f64,
 }
 
 impl NewEntry {
@@ -25,7 +27,15 @@ impl NewEntry {
         NewEntry {
             text: text,
             timestamp: timestamp,
+            score: 0.0,
         }
+    }
+
+    fn calculate_sentiment(&mut self) {
+        let analyzer = SentimentIntensityAnalyzer::new();
+        let scores = analyzer.polarity_scores(self.text.as_ref().unwrap());
+
+        self.score = *scores.get("compound").unwrap();
     }
 }
 
@@ -35,8 +45,9 @@ impl fmt::Display for NewEntry {
 
         write!(
             f,
-            "{}\n{}\n\n",
+            "{}\nMood: {}\n\n{}\n\n",
             self.timestamp.format(&dt_format),
+            self.score,
             self.text.as_ref().unwrap()
         )
     }

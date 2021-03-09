@@ -45,7 +45,8 @@ pub fn parse_args(matches: ArgMatches) -> Journal {
         filename = "_test.txt".to_string();
     }
 
-    let e = NewEntry::new(Some(text), dt);
+    let mut e = NewEntry::new(Some(text), dt);
+    e.calculate_sentiment();
 
     let i = Journal::new(&cmd(e), Some(filename));
 
