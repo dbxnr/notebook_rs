@@ -33,6 +33,7 @@ impl NewEntry {
 pub struct Journal {
     pub cmd: Args,
     filename: Option<String>,
+    dt_format: String,
 }
 
 impl Journal {
@@ -40,6 +41,7 @@ impl Journal {
         Journal {
             cmd: cmd.to_owned(),
             filename: filename,
+            dt_format: String::from("%A %e %B, %Y - %H:%M"),
         }
     }
 
@@ -51,7 +53,7 @@ impl Journal {
 
         let entry: String = format!(
             "{}\n{}\n\n",
-            entry.timestamp.to_string(),
+            entry.timestamp.format(&self.dt_format),
             entry.text.as_ref().unwrap()
         );
 
