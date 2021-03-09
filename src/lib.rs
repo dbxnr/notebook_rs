@@ -9,35 +9,41 @@ use std::{
 
 pub mod argparse;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Args {
-    New,
+    New(NewEntry),
 }
 
-#[derive(Debug)]
-pub struct UserInput {
-    cmd: Args,
+#[derive(Clone, Debug)]
+pub struct NewEntry {
     text: Option<String>,
-    filename: Option<String>,
     timestamp: DateTime<Local>,
 }
 
-impl UserInput {
-    fn new(
-        cmd: Args,
-        text: Option<String>,
-        filename: Option<String>,
-        timestamp: DateTime<Local>,
-    ) -> UserInput {
-        UserInput {
-            cmd: cmd,
+impl NewEntry {
+    fn new(text: Option<String>, timestamp: DateTime<Local>) -> NewEntry {
+        NewEntry {
             text: text,
-            filename: filename,
             timestamp: timestamp,
         }
     }
+}
 
-    pub fn write_entry(&self) -> Result<(), Box<dyn Error>> {
+#[derive(Debug)]
+pub struct Journal {
+    pub cmd: Args,
+    filename: Option<String>,
+}
+
+impl Journal {
+    fn new(cmd: &Args, filename: Option<String>) -> Journal {
+        Journal {
+            cmd: cmd.to_owned(),
+            filename: filename,
+        }
+    }
+
+    pub fn write_entry(&self, entry: &NewEntry) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)
@@ -45,8 +51,8 @@ impl UserInput {
 
         let entry: String = format!(
             "{}\n{}\n\n",
-            self.timestamp.to_string(),
-            self.text.as_ref().unwrap()
+            entry.timestamp.to_string(),
+            entry.text.as_ref().unwrap()
         );
 
         file.write_all(entry.as_bytes())?;
@@ -54,7 +60,7 @@ impl UserInput {
     }
 }
 
-pub fn write_to_temp() -> String {
+pub fn text_from_editor() -> String {
     let editor = var("EDITOR").unwrap();
     let mut file_path = temp_dir();
     file_path.push("editable");
@@ -73,5 +79,6 @@ pub fn write_to_temp() -> String {
 
     fs::remove_file(file_path).expect("Couldn't remove temp file.");
 
+    // TODO: Check for empty string
     text
 }

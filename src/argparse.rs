@@ -1,4 +1,4 @@
-use crate::{write_to_temp, Args, UserInput};
+use crate::{text_from_editor, Args, Journal, NewEntry};
 use chrono::prelude::Local;
 use clap::{App, Arg, ArgMatches};
 
@@ -22,7 +22,7 @@ pub fn get_args() -> ArgMatches<'static> {
     matches
 }
 
-pub fn parse_args(matches: ArgMatches) -> UserInput {
+pub fn parse_args(matches: ArgMatches) -> Journal {
     let mut cmd = Args::New;
     let mut text = String::new();
     let mut filename = String::new();
@@ -32,7 +32,7 @@ pub fn parse_args(matches: ArgMatches) -> UserInput {
         cmd = Args::New;
 
         text = if matches.index_of("new") == None {
-            write_to_temp()
+            text_from_editor()
         } else {
             matches
                 .values_of("new")
@@ -45,7 +45,17 @@ pub fn parse_args(matches: ArgMatches) -> UserInput {
         filename = "_test.txt".to_string();
     }
 
-    let i = UserInput::new(cmd, Some(text), Some(filename), dt);
+    let e = NewEntry::new(Some(text), dt);
+
+    let i = Journal::new(&cmd(e), Some(filename));
 
     i
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_no_editor() {}
 }
