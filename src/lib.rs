@@ -16,26 +16,54 @@ pub enum Args {
 }
 
 #[derive(Clone, Debug)]
+struct Sentiment {
+    compound: f64,
+    icon: String,
+}
+
+impl Sentiment {
+    fn new(compound: f64) -> Sentiment {
+        let icon = match compound {
+            c if c <= -0.7 => "Awful",
+            c if c <= -0.2 => "Bad",
+            c if c <= 0.2 => "Neutral",
+            c if c <= 0.7 => "Good",
+            c if c <= 1.0 => "Great",
+            _ => "Problemo",
+        };
+
+        Sentiment {
+            compound: compound,
+            icon: icon.to_owned(),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct NewEntry {
     text: Option<String>,
     timestamp: DateTime<Local>,
-    score: f64,
+    sentiment: Sentiment,
 }
 
 impl NewEntry {
     fn new(text: Option<String>, timestamp: DateTime<Local>) -> NewEntry {
+        let score = NewEntry::calculate_sentiment(&text);
+        let sentiment = Sentiment::new(score);
         NewEntry {
             text: text,
             timestamp: timestamp,
-            score: 0.0,
+            sentiment: sentiment,
         }
     }
 
-    fn calculate_sentiment(&mut self) {
+    fn calculate_sentiment(text: &Option<String>) -> f64 {
+        // TODO: Write macro to silence this function
+        // TODO: Use pos/neg/neu as colour space coordinates
         let analyzer = SentimentIntensityAnalyzer::new();
-        let scores = analyzer.polarity_scores(self.text.as_ref().unwrap());
+        let scores = analyzer.polarity_scores(text.as_ref().unwrap());
 
-        self.score = *scores.get("compound").unwrap();
+        *scores.get("compound").unwrap()
     }
 }
 
@@ -47,7 +75,7 @@ impl fmt::Display for NewEntry {
             f,
             "{}\nMood: {}\n\n{}\n\n",
             self.timestamp.format(&dt_format),
-            self.score,
+            self.sentiment.icon,
             self.text.as_ref().unwrap()
         )
     }
