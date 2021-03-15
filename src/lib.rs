@@ -33,7 +33,7 @@ impl Sentiment {
         };
 
         Sentiment {
-            compound: compound,
+            compound,
             icon: icon.to_owned(),
         }
     }
@@ -51,9 +51,9 @@ impl NewEntry {
         let score = NewEntry::calculate_sentiment(&text);
         let sentiment = Sentiment::new(score);
         NewEntry {
-            text: text,
-            timestamp: timestamp,
-            sentiment: sentiment,
+            text,
+            timestamp,
+            sentiment,
         }
     }
 
@@ -92,7 +92,7 @@ impl Journal {
     fn new(cmd: &Args, filename: Option<String>) -> Journal {
         Journal {
             cmd: cmd.to_owned(),
-            filename: filename,
+            filename,
             dt_format: String::from("%A %e %B, %Y - %H:%M"),
         }
     }

@@ -51,11 +51,3 @@ pub fn parse_args(matches: ArgMatches) -> Journal {
 
     i
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_new_no_editor() {}
-}
