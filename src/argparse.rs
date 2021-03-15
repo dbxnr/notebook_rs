@@ -32,7 +32,7 @@ pub fn parse_args(matches: ArgMatches) -> Journal {
         cmd = Args::New;
 
         text = if matches.index_of("new") == None {
-            text_from_editor()
+            text_from_editor().unwrap()
         } else {
             matches
                 .values_of("new")

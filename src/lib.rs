@@ -60,7 +60,7 @@ impl NewEntry {
 
     fn calculate_sentiment(text: &Option<String>) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
-        let print_gag = Gag::stdout().unwrap();
+        let _print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();
         let scores = analyzer.polarity_scores(text.as_ref().unwrap());
 
@@ -109,7 +109,7 @@ impl Journal {
     }
 }
 
-pub fn text_from_editor() -> String {
+pub fn text_from_editor() -> Option<String> {
     let editor = var("EDITOR").unwrap();
     let mut file_path = temp_dir();
     file_path.push("editable");
@@ -128,6 +128,9 @@ pub fn text_from_editor() -> String {
 
     fs::remove_file(file_path).expect("Couldn't remove temp file.");
 
-    // TODO: Check for empty string
-    text
+    if text.is_empty() {
+        None
+    } else {
+        Some(text)
+    }
 }
