@@ -1,4 +1,5 @@
 use chrono::prelude::{DateTime, Local};
+use gag::Gag;
 use std::{
     env::{temp_dir, var},
     error::Error,
@@ -58,8 +59,8 @@ impl NewEntry {
     }
 
     fn calculate_sentiment(text: &Option<String>) -> f64 {
-        // TODO: Write macro to silence this function
         // TODO: Use pos/neg/neu as colour space coordinates
+        let print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();
         let scores = analyzer.polarity_scores(text.as_ref().unwrap());
 
