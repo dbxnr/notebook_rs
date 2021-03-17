@@ -10,7 +10,7 @@ struct Journal {
     file: String,
     dtformat: String,
     encryption: Option<EncryptionScheme>,
-    features: Option<Features>,
+    features: Features,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,8 +30,11 @@ impl ::std::default::Default for JournalCfg {
             journals: Journal {
                 file: "_test.txt".into(),
                 dtformat: "this-is-not-a-key".into(),
-                encryption: None,
-                features: None,
+                features: Features { sentiment: true },
+                encryption: Some(EncryptionScheme {
+                    cipher: false,
+                    hash: false,
+                }),
             },
         }
     }
