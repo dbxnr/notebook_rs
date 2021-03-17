@@ -1,4 +1,5 @@
 use journal::argparse;
+use journal::config;
 use journal::Args;
 
 fn main() {
@@ -8,4 +9,6 @@ fn main() {
     match input.cmd {
         Args::New(ref n) => input.write_entry(n).expect("Error writing file"),
     };
+
+    config::test_config();
 }

@@ -7,7 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "2.33"
 chrono = "0.4"
-vader_sentiment = "0.1"
+clap = "2.33"
+confy = "0.4"
 gag = "0.1.10" # Silence vader_sentiment"
+serde = { version = "1.0", features = ["derive"] }
+vader_sentiment = "0.1"

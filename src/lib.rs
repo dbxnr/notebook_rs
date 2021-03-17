@@ -10,6 +10,7 @@ use std::{
 use vader_sentiment::SentimentIntensityAnalyzer;
 
 pub mod argparse;
+pub mod config;
 
 #[derive(Clone, Debug)]
 pub enum Args {
