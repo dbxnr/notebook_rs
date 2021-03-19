@@ -1,12 +1,14 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct JournalCfg {
-    journals: Journal,
+    journals: HashMap<String, Journal>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Journal {
+    name: String,
     file: String,
     dtformat: String,
     encryption: Option<EncryptionScheme>,
@@ -24,19 +26,23 @@ struct Features {
     sentiment: bool,
 }
 
-impl ::std::default::Default for JournalCfg {
+impl std::default::Default for JournalCfg {
     fn default() -> Self {
-        Self {
-            journals: Journal {
+        let mut j = HashMap::new();
+        j.insert(
+            "default".to_string(),
+            Journal {
+                name: "default".into(),
                 file: "_test.txt".into(),
-                dtformat: "this-is-not-a-key".into(),
+                dtformat: "%A %e %B, %Y - %H:%M".into(),
                 features: Features { sentiment: true },
                 encryption: Some(EncryptionScheme {
                     cipher: false,
                     hash: false,
                 }),
             },
-        }
+        );
+        Self { journals: j }
     }
 }
 
