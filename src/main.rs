@@ -2,7 +2,7 @@ use journal::argparse;
 use journal::config;
 use journal::Args;
 
-fn main() {
+fn main() -> std::io::Result<()>{
     let input = argparse::get_args();
     let input = argparse::parse_args(input);
 
@@ -10,5 +10,7 @@ fn main() {
         Args::New(ref n) => input.write_entry(n).expect("Error writing file"),
     };
 
-    config::test_config();
+    config::read_config(None).expect("Cannot read config");
+
+    Ok(())
 }

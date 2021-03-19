@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct JournalCfg {
     journals: HashMap<String, Journal>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Journal {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Journal {
     name: String,
     file: String,
     dtformat: String,
@@ -15,13 +15,13 @@ struct Journal {
     features: Features,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct EncryptionScheme {
     cipher: bool,
     hash: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Features {
     sentiment: bool,
 }
@@ -46,9 +46,15 @@ impl std::default::Default for JournalCfg {
     }
 }
 
-pub fn test_config() -> Result<(), confy::ConfyError> {
-    let l_cfg: JournalCfg = confy::load("journal").unwrap();
+pub fn read_config(journal: Option<&str>) -> Result<Journal, confy::ConfyError> {
+    let journal_name = journal.unwrap_or("default");
+    let journal_cfg: JournalCfg = confy::load("journal").expect("Error reading config");
 
-    dbg!(l_cfg);
-    Ok(())
+    let journal_cfg = &journal_cfg
+        .journals
+        .get(journal_name)
+        .expect("Error parsing config")
+        .to_owned();
+
+    Ok(journal_cfg.to_owned())
 }
