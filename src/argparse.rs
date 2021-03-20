@@ -1,4 +1,4 @@
-use crate::{text_from_editor, Args, Journal, NewEntry};
+use crate::{config, text_from_editor, Args, Journal, NewEntry};
 use chrono::prelude::Local;
 use clap::{App, Arg, ArgMatches};
 
@@ -17,12 +17,24 @@ pub fn get_args() -> ArgMatches<'static> {
                 .help("Create a new note")
                 .multiple(true),
         )
+        .arg(
+            Arg::with_name("journal")
+                .short("j")
+                .long("journal")
+                .takes_value(true)
+                .required(false)
+                .help("Specify a journal")
+                .multiple(false),
+        )
         .get_matches();
 
     matches
 }
 
-pub fn parse_args(matches: ArgMatches) -> Journal {
+pub fn parse_args(matches: ArgMatches) -> Args {
+    let cfg = config::read_config(None).expect("Cannot read config");
+    let journals = cfg;
+
     let mut cmd = Args::New;
     let mut text = String::new();
     let mut filename = String::new();
@@ -47,7 +59,5 @@ pub fn parse_args(matches: ArgMatches) -> Journal {
 
     let e = NewEntry::new(Some(text), dt);
 
-    let i = Journal::new(&cmd(e), Some(filename));
-
-    i
+    cmd(journals, e)
 }

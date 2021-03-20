@@ -1,29 +1,10 @@
+use crate::{EncryptionScheme, Features, Journal};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct JournalCfg {
     journals: HashMap<String, Journal>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Journal {
-    name: String,
-    file: String,
-    dtformat: String,
-    encryption: Option<EncryptionScheme>,
-    features: Features,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-struct EncryptionScheme {
-    cipher: bool,
-    hash: bool,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-struct Features {
-    sentiment: bool,
 }
 
 impl std::default::Default for JournalCfg {
@@ -34,7 +15,7 @@ impl std::default::Default for JournalCfg {
             Journal {
                 name: "default".into(),
                 file: "_test.txt".into(),
-                dtformat: "%A %e %B, %Y - %H:%M".into(),
+                dt_format: "%A %e %B, %Y - %H:%M".into(),
                 features: Features { sentiment: true },
                 encryption: Some(EncryptionScheme {
                     cipher: false,

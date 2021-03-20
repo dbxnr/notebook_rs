@@ -1,5 +1,6 @@
 use chrono::prelude::{DateTime, Local};
 use gag::Gag;
+use serde::{Deserialize, Serialize};
 use std::{
     env::{temp_dir, var},
     error::Error,
@@ -14,7 +15,7 @@ pub mod config;
 
 #[derive(Clone, Debug)]
 pub enum Args {
-    New(NewEntry),
+    New(Journal, NewEntry),
 }
 
 #[derive(Clone, Debug)]
@@ -83,22 +84,16 @@ impl fmt::Display for NewEntry {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Journal {
-    pub cmd: Args,
-    filename: Option<String>,
+    name: String,
+    file: String,
     dt_format: String,
+    encryption: Option<EncryptionScheme>,
+    features: Features,
 }
 
 impl Journal {
-    fn new(cmd: &Args, filename: Option<String>) -> Journal {
-        Journal {
-            cmd: cmd.to_owned(),
-            filename,
-            dt_format: String::from("%A %e %B, %Y - %H:%M"),
-        }
-    }
-
     pub fn write_entry(&self, entry: &NewEntry) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
@@ -108,6 +103,17 @@ impl Journal {
         file.write_all(format!("{}", entry).as_bytes())?;
         Ok(())
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct EncryptionScheme {
+    cipher: bool,
+    hash: bool,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct Features {
+    sentiment: bool,
 }
 
 pub fn text_from_editor() -> Option<String> {
