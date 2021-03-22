@@ -15,7 +15,7 @@ pub mod config;
 
 #[derive(Clone, Debug)]
 pub enum Args {
-    New(Journal, NewEntry),
+    New(Journal, Entry),
 }
 
 #[derive(Clone, Debug)]
@@ -43,34 +43,34 @@ impl Sentiment {
 }
 
 #[derive(Clone, Debug)]
-pub struct NewEntry {
-    text: Option<String>,
+pub struct Entry {
+    text: String,
     timestamp: DateTime<Local>,
     sentiment: Sentiment,
 }
 
-impl NewEntry {
-    fn new(text: Option<String>, timestamp: DateTime<Local>) -> NewEntry {
-        let score = NewEntry::calculate_sentiment(&text);
+impl Entry {
+    fn new(text: String) -> Entry {
+        let score = Entry::calculate_sentiment(&text);
         let sentiment = Sentiment::new(score);
-        NewEntry {
+        Entry {
             text,
-            timestamp,
+            timestamp: Local::now(),
             sentiment,
         }
     }
 
-    fn calculate_sentiment(text: &Option<String>) -> f64 {
+    fn calculate_sentiment(text: &String) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
         let _print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();
-        let scores = analyzer.polarity_scores(text.as_ref().unwrap());
+        let scores = analyzer.polarity_scores(&text);
 
         *scores.get("compound").unwrap()
     }
 }
 
-impl fmt::Display for NewEntry {
+impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let dt_format = String::from("%A %e %B, %Y - %H:%M");
 
@@ -79,7 +79,7 @@ impl fmt::Display for NewEntry {
             "{}\nMood: {}\n\n{}\n\n",
             self.timestamp.format(&dt_format),
             self.sentiment.icon,
-            self.text.as_ref().unwrap()
+            self.text
         )
     }
 }
@@ -89,12 +89,14 @@ pub struct Journal {
     name: String,
     file: String,
     dt_format: String,
+    #[serde(skip)]
+    entries: Vec<Entry>,
     encryption: Option<EncryptionScheme>,
     features: Features,
 }
 
 impl Journal {
-    pub fn write_entry(&self, entry: &NewEntry) -> Result<(), Box<dyn Error>> {
+    pub fn write_entry(&self, entry: &Entry) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)

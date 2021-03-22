@@ -16,6 +16,7 @@ impl std::default::Default for JournalCfg {
                 name: "default".into(),
                 file: "_test.txt".into(),
                 dt_format: "%A %e %B, %Y - %H:%M".into(),
+                entries: vec![],
                 features: Features { sentiment: true },
                 encryption: Some(EncryptionScheme {
                     cipher: false,
