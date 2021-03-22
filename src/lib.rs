@@ -82,7 +82,6 @@ impl fmt::Display for Entry {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Journal {
-    name: String,
     file: String,
     dt_format: String,
     #[serde(skip)]
