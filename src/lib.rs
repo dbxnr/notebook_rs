@@ -50,7 +50,7 @@ pub struct Entry {
 }
 
 impl Entry {
-    fn new(text: String, dt_fmt: &String) -> Entry {
+    fn new(text: String, dt_fmt: &str) -> Entry {
         let score = Entry::calculate_sentiment(&text);
         let sentiment = Sentiment::new(score);
         Entry {
@@ -60,7 +60,7 @@ impl Entry {
         }
     }
 
-    fn calculate_sentiment(text: &String) -> f64 {
+    fn calculate_sentiment(text: &str) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
         let _print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();

@@ -51,7 +51,6 @@ pub fn parse_args(matches: ArgMatches) -> Args {
                 .collect::<Vec<&str>>()
                 .join(" ")
         }
-        .to_string();
     }
 
     let e = Entry::new(text, &journal.dt_format);
