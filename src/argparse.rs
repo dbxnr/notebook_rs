@@ -1,15 +1,16 @@
 use crate::{config, text_from_editor, Args, Entry};
-use clap::{App, Arg, ArgMatches};
+use clap::{App, AppSettings, Arg, ArgMatches};
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Journal")
         .version("0.1.0")
         .author("")
         .about("Note taking")
+        .setting(AppSettings::ArgRequiredElseHelp)
         .arg(
             Arg::with_name("new")
                 .short("n")
-                .long("add")
+                .long("new")
                 .takes_value(true)
                 .min_values(0)
                 .required(false)
@@ -31,7 +32,9 @@ pub fn get_args() -> ArgMatches<'static> {
 }
 
 pub fn parse_args(matches: ArgMatches) -> Args {
-    let journal = config::read_config(None).expect("Cannot read config");
+    let j = matches.value_of("journal");
+
+    let journal = config::read_config(j).expect("Cannot read config");
 
     let mut cmd = Args::New;
     let mut text = String::new();
@@ -51,8 +54,7 @@ pub fn parse_args(matches: ArgMatches) -> Args {
         .to_string();
     }
 
-    let e = Entry::new(text);
-    // j.write(e);
+    let e = Entry::new(text, &journal.dt_format);
 
     cmd(journal, e)
 }

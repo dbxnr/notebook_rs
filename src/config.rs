@@ -35,7 +35,7 @@ pub fn read_config(journal: Option<&str>) -> Result<Journal, confy::ConfyError> 
     let journal_cfg = &journal_cfg
         .journals
         .get(journal_name)
-        .expect("Error parsing config")
+        .expect("Error parsing config - does journal exist?")
         .to_owned();
 
     Ok(journal_cfg.to_owned())

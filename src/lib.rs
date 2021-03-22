@@ -1,4 +1,4 @@
-use chrono::prelude::{DateTime, Local};
+use chrono::prelude::Local;
 use gag::Gag;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -45,17 +45,17 @@ impl Sentiment {
 #[derive(Clone, Debug)]
 pub struct Entry {
     text: String,
-    timestamp: DateTime<Local>,
+    timestamp: String,
     sentiment: Sentiment,
 }
 
 impl Entry {
-    fn new(text: String) -> Entry {
+    fn new(text: String, dt_fmt: &String) -> Entry {
         let score = Entry::calculate_sentiment(&text);
         let sentiment = Sentiment::new(score);
         Entry {
             text,
-            timestamp: Local::now(),
+            timestamp: Local::now().format(&dt_fmt).to_string(),
             sentiment,
         }
     }
@@ -72,14 +72,10 @@ impl Entry {
 
 impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let dt_format = String::from("%A %e %B, %Y - %H:%M");
-
         write!(
             f,
             "{}\nMood: {}\n\n{}\n\n",
-            self.timestamp.format(&dt_format),
-            self.sentiment.icon,
-            self.text
+            self.timestamp, self.sentiment.icon, self.text
         )
     }
 }
@@ -100,7 +96,7 @@ impl Journal {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)
-            .open("_test.txt")?;
+            .open(&self.file)?;
 
         file.write_all(format!("{}", entry).as_bytes())?;
         Ok(())
