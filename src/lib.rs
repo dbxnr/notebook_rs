@@ -43,6 +43,12 @@ impl Sentiment {
     }
 }
 
+impl fmt::Display for Sentiment {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Mood: {:.3} - {}", self.compound, self.icon)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Entry {
     text: String,
@@ -75,8 +81,8 @@ impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}\nMood: {}\n\n{}\n\n¶\n",
-            self.timestamp, self.sentiment.icon, self.text
+            "{}\n{}\n\n{}\n\n¶\n",
+            self.timestamp, self.sentiment, self.text
         )
     }
 }
