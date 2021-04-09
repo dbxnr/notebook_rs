@@ -75,7 +75,7 @@ impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}\nMood: {}\n\n{}\n\n",
+            "{}\nMood: {}\n\n{}\n\n¶\n",
             self.timestamp, self.sentiment.icon, self.text
         )
     }
@@ -88,7 +88,7 @@ pub struct Journal {
     #[serde(skip)]
     entries: Vec<Entry>,
     encryption: Option<EncryptionScheme>,
-    features: Features,
+    features: Vec<Feature>,
 }
 
 impl Journal {
@@ -103,7 +103,10 @@ impl Journal {
     }
 
     pub fn read_entry(&self) -> Result<(), Box<dyn Error>> {
-        let _file = fs::OpenOptions::new().read(true).open(&self.file)?;
+        let file = fs::read_to_string(&self.file).expect("Error reading file");
+        for e in file.split_terminator("¶\n") {
+            println!("{}", e.trim());
+        }
         Ok(())
     }
 }
@@ -115,8 +118,27 @@ struct EncryptionScheme {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct Features {
-    sentiment: bool,
+#[serde(tag = "features")]
+enum Feature {
+    Sentiment,
+    Encrypted {
+        cipher: bool,
+        hash: bool,
+        salt: bool,
+    },
+}
+
+impl fmt::Display for Feature {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Feature::Sentiment => write!(f, "Mood: "),
+            Feature::Encrypted {
+                cipher: _,
+                hash: _,
+                salt: _,
+            } => write!(f, "Encryption: "),
+        }
+    }
 }
 
 pub fn text_from_editor() -> Option<String> {
