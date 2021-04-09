@@ -14,8 +14,9 @@ pub mod argparse;
 pub mod config;
 
 #[derive(Clone, Debug)]
-pub enum Args {
-    New(Journal, Entry),
+pub enum Args<'a> {
+    New(&'a Journal, Entry),
+    List(&'a Journal),
 }
 
 #[derive(Clone, Debug)]
@@ -98,6 +99,11 @@ impl Journal {
             .open(&self.file)?;
 
         file.write_all(format!("{}", entry).as_bytes())?;
+        Ok(())
+    }
+
+    pub fn read_entry(&self) -> Result<(), Box<dyn Error>> {
+        let _file = fs::OpenOptions::new().read(true).open(&self.file)?;
         Ok(())
     }
 }

@@ -1,5 +1,6 @@
 use crate::{config, text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
+use std::error::Error;
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Journal")
@@ -22,27 +23,30 @@ pub fn get_args() -> ArgMatches<'static> {
                 .short("j")
                 .long("journal")
                 .takes_value(true)
-                .required(false)
-                .help("Specify a journal")
-                .multiple(false),
+                .help("Specify a journal"),
+        )
+        .arg(
+            Arg::with_name("list")
+                .short("l")
+                .long("list")
+                .takes_value(true)
+                .min_values(0)
+                .help("List entries"),
         )
         .get_matches();
 
     matches
 }
 
-pub fn parse_args(matches: ArgMatches) -> Args {
+pub fn parse_args(matches: ArgMatches) -> Result<(), Box<dyn Error>> {
     let j = matches.value_of("journal");
 
     let journal = config::read_config(j).expect("Cannot read config");
 
-    let mut cmd = Args::New;
-    let mut text = String::new();
+    let mut cmd = Args::List(&journal);
 
     if matches.is_present("new") {
-        cmd = Args::New;
-
-        text = if matches.index_of("new") == None {
+        let text = if matches.index_of("new") == None {
             text_from_editor().unwrap()
         } else {
             matches
@@ -50,10 +54,17 @@ pub fn parse_args(matches: ArgMatches) -> Args {
                 .unwrap()
                 .collect::<Vec<&str>>()
                 .join(" ")
-        }
+        };
+        let e = Entry::new(text, &journal.dt_format);
+        cmd = Args::New(&journal, e);
     }
 
-    let e = Entry::new(text, &journal.dt_format);
+    if matches.is_present("list") {
+        cmd = Args::List(&journal);
+    }
 
-    cmd(journal, e)
+    match cmd {
+        Args::New(ref j, ref e) => j.write_entry(e),
+        Args::List(ref j) => j.read_entry(),
+    }
 }
