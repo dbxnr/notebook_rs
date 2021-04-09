@@ -87,8 +87,8 @@ pub struct Journal {
     dt_format: String,
     #[serde(skip)]
     entries: Vec<Entry>,
+    sentiment: bool,
     encryption: Option<EncryptionScheme>,
-    features: Vec<Feature>,
 }
 
 impl Journal {
@@ -115,30 +115,7 @@ impl Journal {
 struct EncryptionScheme {
     cipher: bool,
     hash: bool,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "features")]
-enum Feature {
-    Sentiment,
-    Encrypted {
-        cipher: bool,
-        hash: bool,
-        salt: bool,
-    },
-}
-
-impl fmt::Display for Feature {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Feature::Sentiment => write!(f, "Mood: "),
-            Feature::Encrypted {
-                cipher: _,
-                hash: _,
-                salt: _,
-            } => write!(f, "Encryption: "),
-        }
-    }
+    salt: bool,
 }
 
 pub fn text_from_editor() -> Option<String> {
