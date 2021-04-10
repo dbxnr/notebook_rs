@@ -47,7 +47,7 @@ impl Sentiment {
 
 impl fmt::Display for Sentiment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Mood: {:.3} - {}", self.compound, self.icon)
+        write!(f, "{:.3} ≅ {}", self.compound, self.icon)
     }
 }
 
@@ -86,14 +86,17 @@ impl FromStr for Entry {
         let e: Vec<&str> = s.split("---").collect();
 
         // Use str::split_once when available
+        // Or use regex
         let text = e[1].trim().to_string();
         let header: Vec<&str> = e[0].trim().split('\n').collect();
         let timestamp = header[0].split_at(4).1.to_string();
-        let sentiment: &str = header[1].split(':').collect::<Vec<&str>>()[1].trim();
+        let compound: f64 = header[1].split('-').collect::<Vec<&str>>()[0][5..10]
+            .parse()
+            .unwrap(); //.trim();
         Ok(Entry {
             text,
             timestamp,
-            sentiment: { Sentiment::new(0.0_f64) },
+            sentiment: { Sentiment::new(compound) },
         })
     }
 }
