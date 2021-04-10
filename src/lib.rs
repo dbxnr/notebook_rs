@@ -90,7 +90,8 @@ impl FromStr for Entry {
         let text = e[1].trim().to_string();
         let header: Vec<&str> = e[0].trim().split('\n').collect();
         let timestamp = header[0].split_at(4).1.to_string();
-        let compound: f64 = header[1].split('-').collect::<Vec<&str>>()[0][5..10]
+        let compound: f64 = header[1].split('≅').collect::<Vec<&str>>()[0][5..]
+            .trim()
             .parse()
             .unwrap(); //.trim();
         Ok(Entry {
