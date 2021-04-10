@@ -7,6 +7,8 @@ use std::{
     fmt, fs,
     io::prelude::*,
     process::Command,
+    str::FromStr,
+    string::ParseError,
 };
 use vader_sentiment::SentimentIntensityAnalyzer;
 
@@ -76,12 +78,22 @@ impl Entry {
         *scores.get("compound").unwrap()
     }
 }
+/*
+impl FromStr for Entry {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+
+        Ok()
+    }
+}
+*/
 
 impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}\n{}\n\n{}\n\n¶\n",
+            "### {}\n#### {}\n---\n\n{}\n\n¶\n",
             self.timestamp, self.sentiment, self.text
         )
     }

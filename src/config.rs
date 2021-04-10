@@ -14,7 +14,7 @@ impl std::default::Default for JournalCfg {
         j.insert(
             "default".to_string(),
             Journal {
-                file: "_test.txt".into(),
+                file: "_test.md".into(),
                 dt_format: "%A %e %B, %Y - %H:%M".into(),
                 entries: vec![],
                 sentiment: true,
