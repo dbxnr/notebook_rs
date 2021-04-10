@@ -30,11 +30,11 @@ struct Sentiment {
 impl Sentiment {
     fn new(compound: f64) -> Sentiment {
         let icon = match compound {
-            c if c <= -0.7 => "Awful",
-            c if c <= -0.2 => "Bad",
-            c if c <= 0.2 => "Neutral",
-            c if c <= 0.7 => "Good",
-            c if c <= 1.0 => "Great",
+            c if c <= -0.7 => "😿",
+            c if c <= -0.2 => "😾",
+            c if c <= 0.2 => "🐱",
+            c if c <= 0.7 => "😺",
+            c if c <= 1.0 => "😸",
             _ => "Problemo",
         };
 
