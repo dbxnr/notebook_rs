@@ -1,6 +1,5 @@
 use crate::{config, text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
-use std::error::Error;
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Journal")
@@ -41,7 +40,7 @@ pub fn get_args() -> ArgMatches<'static> {
 pub fn parse_args(matches: ArgMatches) {
     let j = matches.value_of("journal");
 
-    let mut journal = config::read_config(j).expect("Cannot read config");
+    let journal = config::read_config(j).expect("Cannot read config");
 
     if matches.is_present("new") {
         let text = if matches.index_of("new") == None {
@@ -65,10 +64,11 @@ pub fn parse_args(matches: ArgMatches) {
     };
 }
 
-fn run_command(mut cmd: Args) {
+fn run_command(cmd: Args) {
     match cmd {
         Args::New(ref j, ref e) => j.write_entry(e),
         Args::List(mut j, ref _n) => j.read_entries(),
         Args::Dummy => Ok(()),
-    };
+    }
+    .expect("Error matching command");
 }
