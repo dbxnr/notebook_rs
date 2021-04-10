@@ -38,12 +38,10 @@ pub fn get_args() -> ArgMatches<'static> {
     matches
 }
 
-pub fn parse_args(matches: ArgMatches) -> Result<(), Box<dyn Error>> {
+pub fn parse_args(matches: ArgMatches) {
     let j = matches.value_of("journal");
 
-    let journal = config::read_config(j).expect("Cannot read config");
-
-    let mut cmd = Args::List(&journal);
+    let mut journal = config::read_config(j).expect("Cannot read config");
 
     if matches.is_present("new") {
         let text = if matches.index_of("new") == None {
@@ -56,15 +54,21 @@ pub fn parse_args(matches: ArgMatches) -> Result<(), Box<dyn Error>> {
                 .join(" ")
         };
         let e = Entry::new(text, &journal.dt_format);
-        cmd = Args::New(&journal, e);
-    }
+        let cmd = Args::New(&journal, e);
+        run_command(cmd)
+    };
 
     if matches.is_present("list") {
-        cmd = Args::List(&journal);
-    }
+        let n = matches.value_of("list").unwrap().parse::<usize>().unwrap();
+        let cmd = Args::List(journal, n);
+        run_command(cmd)
+    };
+}
 
+fn run_command(mut cmd: Args) {
     match cmd {
         Args::New(ref j, ref e) => j.write_entry(e),
-        Args::List(ref j) => j.read_entry(),
-    }
+        Args::List(mut j, ref _n) => j.read_entries(),
+        Args::Dummy => Ok(()),
+    };
 }
