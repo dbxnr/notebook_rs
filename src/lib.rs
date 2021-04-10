@@ -78,16 +78,25 @@ impl Entry {
         *scores.get("compound").unwrap()
     }
 }
-/*
+
 impl FromStr for Entry {
     type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let e: Vec<&str> = s.split("---").collect();
 
-        Ok()
+        // Use str::split_once when available
+        let text = e[1].trim().to_string();
+        let header: Vec<&str> = e[0].trim().split('\n').collect();
+        let timestamp = header[0].split_at(4).1.to_string();
+        let sentiment: &str = header[1].split(':').collect::<Vec<&str>>()[1].trim();
+        Ok(Entry {
+            text,
+            timestamp,
+            sentiment: { Sentiment::new(0.0_f64) },
+        })
     }
 }
-*/
 
 impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -123,7 +132,7 @@ impl Journal {
     pub fn read_entry(&self) -> Result<(), Box<dyn Error>> {
         let file = fs::read_to_string(&self.file).expect("Error reading file");
         for e in file.split_terminator("¶\n") {
-            println!("{}", e.trim());
+            println!("{}", Entry::from_str(&e).unwrap());
         }
         Ok(())
     }
