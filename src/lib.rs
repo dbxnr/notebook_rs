@@ -87,16 +87,14 @@ impl FromStr for Entry {
 
         // Use str::split_once when available
         // Or use regex
-        let text = e[1].trim().to_string();
         let header: Vec<&str> = e[0].trim().split('\n').collect();
-        let timestamp = header[0].split_at(4).1.to_string();
         let compound: f64 = header[1].split('≅').collect::<Vec<&str>>()[0][5..]
             .trim()
             .parse()
-            .unwrap(); //.trim();
+            .unwrap();
         Ok(Entry {
-            text,
-            timestamp,
+            text: e[1].trim().into(),
+            timestamp: header[0].split_at(4).1.into(),
             sentiment: { Sentiment::new(compound) },
         })
     }
