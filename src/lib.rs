@@ -139,6 +139,19 @@ impl Journal {
         }
         Ok(())
     }
+
+    pub fn list_entries(&self, n: &usize) -> Result<(), Box<dyn Error>> {
+        let mut i = self.entries.len() - 1;
+        if *n < i {
+            i = *n;
+        }
+
+        for e in 0..i{
+            dbg!(&self.entries[e].timestamp);
+        }
+        
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

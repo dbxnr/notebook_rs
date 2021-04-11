@@ -40,7 +40,7 @@ pub fn get_args() -> ArgMatches<'static> {
 pub fn parse_args(matches: ArgMatches) {
     let j = matches.value_of("journal");
 
-    let journal = config::read_config(j).expect("Cannot read config");
+    let mut journal = config::read_config(j).expect("Cannot read config");
 
     if matches.is_present("new") {
         let text = if matches.index_of("new") == None {
@@ -58,7 +58,9 @@ pub fn parse_args(matches: ArgMatches) {
     };
 
     if matches.is_present("list") {
+        //TODO: Add default value
         let n = matches.value_of("list").unwrap().parse::<usize>().unwrap();
+        journal.read_entries().expect("Error reading entries");
         let cmd = Args::List(journal, n);
         run_command(cmd)
     };
@@ -67,7 +69,7 @@ pub fn parse_args(matches: ArgMatches) {
 fn run_command(cmd: Args) {
     match cmd {
         Args::New(ref j, ref e) => j.write_entry(e),
-        Args::List(mut j, ref _n) => j.read_entries(),
+        Args::List(ref j, ref n) => j.list_entries(n),
         Args::Dummy => Ok(()),
     }
     .expect("Error matching command");
