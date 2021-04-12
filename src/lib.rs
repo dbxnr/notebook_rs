@@ -141,15 +141,19 @@ impl Journal {
     }
 
     pub fn list_entries(&self, n: &usize) -> Result<(), Box<dyn Error>> {
-        let mut i = self.entries.len() - 1;
+        // Iterates over last n elements of entries
+        // Prints timestamp numbered by enumerate
+        // TODO: Indexing starts from zero, possibly change to 1?
+
+        let mut i = self.entries.len();
         if *n < i {
             i = *n;
         }
 
-        for e in 0..i{
-            dbg!(&self.entries[e].timestamp);
+        for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
+            println!("{}. {}", e.0, e.1.timestamp);
         }
-        
+
         Ok(())
     }
 }
