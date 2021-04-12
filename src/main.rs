@@ -1,4 +1,4 @@
-use journal::argparse;
+use notebook_rs::argparse;
 
 fn main() {
     let _input = argparse::get_args();

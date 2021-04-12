@@ -1,19 +1,19 @@
-use crate::{EncryptionScheme, Journal};
+use crate::{EncryptionScheme, Notebook};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
-struct JournalCfg {
-    journals: HashMap<String, Journal>,
+struct NotebookCfg {
+    notebooks: HashMap<String, Notebook>,
 }
 
-impl std::default::Default for JournalCfg {
+impl std::default::Default for NotebookCfg {
     fn default() -> Self {
         let mut j = HashMap::new();
         j.insert(
             "default".to_string(),
-            Journal {
+            Notebook {
                 file: "_test.md".into(),
                 dt_format: "%A %e %B, %Y - %H:%M".into(),
                 entries: vec![],
@@ -25,19 +25,19 @@ impl std::default::Default for JournalCfg {
                 }),
             },
         );
-        Self { journals: j }
+        Self { notebooks: j }
     }
 }
 
-pub fn read_config(journal: Option<&str>) -> Result<Journal, confy::ConfyError> {
-    let journal_name = journal.unwrap_or("default");
-    let journal_cfg: JournalCfg = confy::load("journal").expect("Error reading config");
+pub fn read_config(notebook: Option<&str>) -> Result<Notebook, confy::ConfyError> {
+    let notebook_name = notebook.unwrap_or("default");
+    let notebook_cfg: NotebookCfg = confy::load("notebook").expect("Error reading config");
 
-    let journal_cfg = &journal_cfg
-        .journals
-        .get(journal_name)
-        .expect("Error parsing config - does journal exist?")
+    let notebook_cfg = &notebook_cfg
+        .notebooks
+        .get(notebook_name)
+        .expect("Error parsing config - does notebook exist?")
         .to_owned();
 
-    Ok(journal_cfg.to_owned())
+    Ok(notebook_cfg.to_owned())
 }

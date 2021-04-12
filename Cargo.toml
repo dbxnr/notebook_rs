@@ -1,10 +1,9 @@
 [package]
-name = "journal"
+name = "notebook_rs"
 version = "0.1.0"
-authors = ["dbxnr <dbxnr@users.noreply.github.com>"]
+authors = ["K Malachi Mulligan <kevinmalachimulligan@protonmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/dbxnr/notebook-rs"
 
 [dependencies]
 chrono = "0.4"
@@ -13,3 +12,7 @@ confy = "0.4"
 gag = "0.1.10" # Silence vader_sentiment"
 serde = { version = "1.0", features = ["derive"] }
 vader_sentiment = "0.1"
+
+[[bin]]
+name = "nb"
+path = "src/main.rs"

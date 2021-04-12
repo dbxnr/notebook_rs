@@ -17,9 +17,9 @@ pub mod config;
 
 #[derive(Clone, Debug)]
 pub enum Args<'a> {
-    New(&'a Journal, Entry),
-    List(&'a Journal, usize),
-    Read(&'a Journal, usize),
+    New(&'a Notebook, Entry),
+    List(&'a Notebook, usize),
+    Read(&'a Notebook, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -112,7 +112,7 @@ impl fmt::Display for Entry {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Journal {
+pub struct Notebook {
     file: String,
     dt_format: String,
     #[serde(skip)]
@@ -121,7 +121,7 @@ pub struct Journal {
     encryption: Option<EncryptionScheme>,
 }
 
-impl Journal {
+impl Notebook {
     pub fn write_entry(&self, entry: &Entry) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
@@ -195,4 +195,9 @@ pub fn text_from_editor() -> Option<String> {
     } else {
         Some(text)
     }
+}
+
+#[cfg(test)]
+mod tests {
+
 }

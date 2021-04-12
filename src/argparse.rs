@@ -2,7 +2,7 @@ use crate::{config, text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
 
 pub fn get_args() -> ArgMatches<'static> {
-    let matches = App::new("Journal")
+    let matches = App::new("Notebook")
         .version("0.1.0")
         .author("")
         .about("Note taking")
@@ -18,11 +18,11 @@ pub fn get_args() -> ArgMatches<'static> {
                 .multiple(true),
         )
         .arg(
-            Arg::with_name("journal")
+            Arg::with_name("notebook")
                 .short("j")
-                .long("journal")
+                .long("notebook")
                 .takes_value(true)
-                .help("Specify a journal"),
+                .help("Specify a notebook"),
         )
         .arg(
             Arg::with_name("list")
@@ -45,9 +45,9 @@ pub fn get_args() -> ArgMatches<'static> {
 }
 
 pub fn parse_args(matches: ArgMatches) {
-    let j = matches.value_of("journal");
+    let j = matches.value_of("notebook");
 
-    let mut journal = config::read_config(j).expect("Cannot read config");
+    let mut notebook = config::read_config(j).expect("Cannot read config");
 
     if matches.is_present("new") {
         let text = if matches.index_of("new") == None {
@@ -59,23 +59,23 @@ pub fn parse_args(matches: ArgMatches) {
                 .collect::<Vec<&str>>()
                 .join(" ")
         };
-        let e = Entry::new(text, &journal.dt_format);
-        let cmd = Args::New(&journal, e);
+        let e = Entry::new(text, &notebook.dt_format);
+        let cmd = Args::New(&notebook, e);
         run_command(cmd)
     };
 
     if matches.is_present("list") {
         //TODO: Add default value
         let n = matches.value_of("list").unwrap().parse::<usize>().unwrap();
-        journal.read_entries().expect("Error reading entries");
-        let cmd = Args::List(&journal, n);
+        notebook.read_entries().expect("Error reading entries");
+        let cmd = Args::List(&notebook, n);
         run_command(cmd)
     };
 
     if matches.is_present("read") {
         let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
-        journal.read_entries().expect("Error reading entries");
-        let cmd = Args::Read(&journal, n);
+        notebook.read_entries().expect("Error reading entries");
+        let cmd = Args::Read(&notebook, n);
         run_command(cmd)
     };
 }

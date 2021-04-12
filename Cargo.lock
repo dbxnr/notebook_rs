@@ -201,18 +201,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "journal"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clap",
- "confy",
- "gag",
- "serde",
- "vader_sentiment",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -235,6 +223,18 @@ name = "memchr"
 version = "2.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ee1c47aaa256ecabcaea351eae4a9b01ef39ed810004e298d2511ed284b1525"
+
+[[package]]
+name = "notebook_rs"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "confy",
+ "gag",
+ "serde",
+ "vader_sentiment",
+]
 
 [[package]]
 name = "num-integer"
