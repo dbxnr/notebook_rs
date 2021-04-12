@@ -32,6 +32,13 @@ pub fn get_args() -> ArgMatches<'static> {
                 .min_values(0)
                 .help("List entries"),
         )
+        .arg(
+            Arg::with_name("read")
+                .short("r")
+                .long("read")
+                .takes_value(true)
+                .help("Display specific entry"),
+        )
         .get_matches();
 
     matches
@@ -61,7 +68,14 @@ pub fn parse_args(matches: ArgMatches) {
         //TODO: Add default value
         let n = matches.value_of("list").unwrap().parse::<usize>().unwrap();
         journal.read_entries().expect("Error reading entries");
-        let cmd = Args::List(journal, n);
+        let cmd = Args::List(&journal, n);
+        run_command(cmd)
+    };
+
+    if matches.is_present("read") {
+        let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
+        journal.read_entries().expect("Error reading entries");
+        let cmd = Args::Read(&journal, n);
         run_command(cmd)
     };
 }
@@ -70,7 +84,7 @@ fn run_command(cmd: Args) {
     match cmd {
         Args::New(ref j, ref e) => j.write_entry(e),
         Args::List(ref j, ref n) => j.list_entries(n),
-        Args::Dummy => Ok(()),
+        Args::Read(ref j, ref n) => j.read_entry(n),
     }
     .expect("Error matching command");
 }

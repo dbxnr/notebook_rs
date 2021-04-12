@@ -18,8 +18,8 @@ pub mod config;
 #[derive(Clone, Debug)]
 pub enum Args<'a> {
     New(&'a Journal, Entry),
-    List(Journal, usize),
-    Dummy,
+    List(&'a Journal, usize),
+    Read(&'a Journal, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -137,6 +137,12 @@ impl Journal {
         for e in file.split_terminator("¶\n") {
             self.entries.push(Entry::from_str(&e).unwrap());
         }
+        Ok(())
+    }
+
+    pub fn read_entry(&self, n: &usize) -> Result<(), Box<dyn Error>> {
+        println!("{}", &self.entries[*n]);
+
         Ok(())
     }
 
