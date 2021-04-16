@@ -1,3 +1,7 @@
+<a href="https://crates.io/crates/notebook_rs" alt="crates.io">
+  <img src="https://img.shields.io/crates/v/notebook_rs" /></a>
+
+
 ## Notebook_rs
 
 CLI tool for maintaining plaintext notebooks, formatted as Markdown by default.
