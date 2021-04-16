@@ -83,9 +83,9 @@ pub fn parse_args(matches: ArgMatches) {
 
 fn run_command(cmd: Args) {
     match cmd {
-        Args::New(ref j, ref e) => j.write_entry(e),
-        Args::List(ref j, ref n) => j.list_entries(n, &mut io::stdout()),
-        Args::Read(ref j, ref n) => j.read_entry(n, &mut io::stdout()),
+        Args::New(j, ref e) => j.write_entry(e),
+        Args::List(j, ref n) => j.list_entries(n, &mut io::stdout()),
+        Args::Read(j, ref n) => j.read_entry(n, &mut io::stdout()),
     }
     .expect("Error matching command");
 }
