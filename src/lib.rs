@@ -219,8 +219,8 @@ mod test_notebook {
     fn test_list_entries() {
         let mut stdout = vec![];
         let mut nb = create_notebook();
-        nb.read_entries();
-        let e = nb.list_entries(&0, &mut stdout).unwrap();
-        assert_eq!(stdout, "data/test.md");
+        nb.read_entries().expect("Error reading entries");
+        nb.list_entries(&1, &mut stdout).unwrap();
+        assert_eq!(stdout, b"3. Saturday 13 April, 1893 - 22:17\n");
     }
 }
