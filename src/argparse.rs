@@ -1,5 +1,6 @@
 use crate::{config, text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
+use std::io;
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Notebook")
@@ -83,8 +84,8 @@ pub fn parse_args(matches: ArgMatches) {
 fn run_command(cmd: Args) {
     match cmd {
         Args::New(ref j, ref e) => j.write_entry(e),
-        Args::List(ref j, ref n) => j.list_entries(n),
-        Args::Read(ref j, ref n) => j.read_entry(n),
+        Args::List(ref j, ref n) => j.list_entries(n, &mut io::stdout()),
+        Args::Read(ref j, ref n) => j.read_entry(n, &mut io::stdout()),
     }
     .expect("Error matching command");
 }

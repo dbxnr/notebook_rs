@@ -132,21 +132,21 @@ impl Notebook {
         Ok(())
     }
 
-    pub fn read_entries(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn read_entries(&mut self) -> Result<&mut Self, Box<dyn Error>> {
         let file = fs::read_to_string(&self.file).expect("Error reading file");
         for e in file.split_terminator("¶\n") {
             self.entries.push(Entry::from_str(&e).unwrap());
         }
+        Ok(self)
+    }
+
+    pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
+        writeln!(stdout, "{}", &self.entries[*n])?;
+
         Ok(())
     }
 
-    pub fn read_entry(&self, n: &usize) -> Result<(), Box<dyn Error>> {
-        println!("{}", &self.entries[*n]);
-
-        Ok(())
-    }
-
-    pub fn list_entries(&self, n: &usize) -> Result<(), Box<dyn Error>> {
+    pub fn list_entries<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
         // Iterates over last n elements of entries
         // Prints timestamp numbered by enumerate
         // TODO: Indexing starts from zero, possibly change to 1?
@@ -157,7 +157,7 @@ impl Notebook {
         }
 
         for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-            println!("{}. {}", e.0, e.1.timestamp);
+            writeln!(stdout, "{}. {}", e.0, e.1.timestamp)?;
         }
 
         Ok(())
@@ -198,6 +198,29 @@ pub fn text_from_editor() -> Option<String> {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_notebook {
+    use super::*;
 
+    fn create_notebook() -> Notebook {
+        Notebook {
+            file: "data/test.md".into(),
+            dt_format: "%A %e %B, %Y - %H:%M".into(),
+            entries: vec![],
+            sentiment: true,
+            encryption: Some(EncryptionScheme {
+                cipher: false,
+                hash: false,
+                salt: false,
+            }),
+        }
+    }
+
+    #[test]
+    fn test_list_entries() {
+        let mut stdout = vec![];
+        let mut nb = create_notebook();
+        nb.read_entries();
+        let e = nb.list_entries(&0, &mut stdout).unwrap();
+        assert_eq!(stdout, "data/test.md");
+    }
 }
