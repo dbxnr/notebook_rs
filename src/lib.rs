@@ -151,7 +151,7 @@ impl Notebook {
     }
 
     pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
-        writeln!(stdout, "{}", &self.entries[*n])?;
+        write!(stdout, "{}", &self.entries[*n])?;
 
         Ok(())
     }
@@ -215,15 +215,24 @@ mod test_notebook {
         let mut nb = Notebook::new();
         nb.file = "data/test.md".into();
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
+        nb.read_entries().expect("Error reading entries.");
         nb
     }
 
     #[test]
-    fn test_list_entries() {
+    fn test_list_one_entry() {
         let mut stdout = vec![];
-        let mut nb = create_notebook();
-        nb.read_entries().expect("Error reading entries");
+        let nb = create_notebook();
         nb.list_entries(&1, &mut stdout).unwrap();
         assert_eq!(stdout, b"3. Saturday 13 April, 1893 - 22:17\n");
+    }
+
+    #[test]
+    fn test_read_first_entry() {
+        let mut stdout = vec![];
+        let nb = create_notebook();
+        nb.read_entry(&0, &mut stdout).unwrap();
+        assert!(stdout.starts_with("### Sunday 20 November, 1892 - 20:16".as_bytes()));
+        assert!(stdout.ends_with("Left out the Mutlars of course.\n\n¶\n".as_bytes()));
     }
 }
