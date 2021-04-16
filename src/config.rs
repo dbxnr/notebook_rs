@@ -1,4 +1,4 @@
-use crate::{EncryptionScheme, Notebook};
+use crate::Notebook;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -11,20 +11,10 @@ struct NotebookCfg {
 impl std::default::Default for NotebookCfg {
     fn default() -> Self {
         let mut j = HashMap::new();
-        j.insert(
-            "default".to_string(),
-            Notebook {
-                file: "_test.md".into(),
-                dt_format: "%A %e %B, %Y - %H:%M".into(),
-                entries: vec![],
-                sentiment: true,
-                encryption: Some(EncryptionScheme {
-                    cipher: false,
-                    hash: false,
-                    salt: false,
-                }),
-            },
-        );
+        let mut nb = Notebook::new();
+        nb.file = "_test.md".into();
+        nb.dt_format = "%A %e %B, %Y - %H:%M".into();
+        j.insert("default".to_string(), nb);
         Self { notebooks: j }
     }
 }

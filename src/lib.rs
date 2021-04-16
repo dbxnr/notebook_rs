@@ -122,6 +122,16 @@ pub struct Notebook {
 }
 
 impl Notebook {
+    fn new() -> Notebook {
+        Notebook {
+            file: String::new(),
+            dt_format: String::new(),
+            entries: vec![],
+            sentiment: true,
+            encryption: None,
+        }
+    }
+
     pub fn write_entry(&self, entry: &Entry) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
@@ -202,17 +212,10 @@ mod test_notebook {
     use super::*;
 
     fn create_notebook() -> Notebook {
-        Notebook {
-            file: "data/test.md".into(),
-            dt_format: "%A %e %B, %Y - %H:%M".into(),
-            entries: vec![],
-            sentiment: true,
-            encryption: Some(EncryptionScheme {
-                cipher: false,
-                hash: false,
-                salt: false,
-            }),
-        }
+        let mut nb = Notebook::new();
+        nb.file = "data/test.md".into();
+        nb.dt_format = "%A %e %B, %Y - %H:%M".into();
+        nb
     }
 
     #[test]
