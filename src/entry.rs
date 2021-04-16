@@ -67,14 +67,26 @@ mod test_entry {
     use super::*;
 
     #[test]
-    fn test_create_entry() {
+    fn test_entry_text() {
         let e = Entry::new("Testing this entry".into(), "%A %e %B, %Y - %H:%M");
         assert_eq!(e.text, "Testing this entry");
     }
 
     #[test]
     fn test_timestamp_is_now() {
-        let n = Entry::new("Testing the timestamp".into(),"%A %e %B, %Y - %H:%M");
-        assert_eq!(n.timestamp, Local::now().format("%A %e %B, %Y - %H:%M").to_string());
+        let e = Entry::new("Testing the timestamp".into(),"%A %e %B, %Y - %H:%M");
+        assert_eq!(e.timestamp, Local::now().format("%A %e %B, %Y - %H:%M").to_string());
+    }
+
+    #[test]
+    fn test_sentiment_positive() {
+        let e = Entry::new("This is amazing and should have a really high and awesome compound sentiment!".into(), "%A %e %B, %Y - %H:%M");
+        assert_eq!(e.sentiment.compound, 0.86732358124633);
+    }
+
+    #[test]
+    fn test_sentiment_negative() {
+        let e = Entry::new("This is awful and should have a really low and terrible compound sentiment!".into(), "%A %e %B, %Y - %H:%M");
+        assert_eq!(e.sentiment.compound, -0.8157728811846393);
     }
 }
