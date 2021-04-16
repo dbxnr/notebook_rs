@@ -8,6 +8,7 @@ license = "MIT"
 keywords = ["notebook", "journal"]
 categories = ["command-line-utilities"]
 readme = "README.md"
+exclude = ["data/*"]
 
 [dependencies]
 chrono = "0.4"
