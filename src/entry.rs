@@ -1,4 +1,5 @@
 use chrono::prelude::Local;
+use gag::Gag;
 use std::{fmt, str::FromStr, string::ParseError};
 use vader_sentiment::SentimentIntensityAnalyzer;
 
@@ -24,6 +25,7 @@ impl Entry {
 
     fn calculate_sentiment(text: &str) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
+        let _print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();
         let scores = analyzer.polarity_scores(&text);
 
