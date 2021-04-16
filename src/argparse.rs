@@ -67,7 +67,11 @@ pub fn parse_args(matches: ArgMatches) {
 
     if matches.is_present("list") {
         //TODO: Add default value
-        let n = matches.value_of("list").unwrap().parse::<usize>().unwrap();
+        let n = matches
+            .value_of("list")
+            .unwrap_or("5")
+            .parse::<usize>()
+            .unwrap();
         notebook.read_entries().expect("Error reading entries");
         let cmd = Args::List(&notebook, n);
         run_command(cmd)
