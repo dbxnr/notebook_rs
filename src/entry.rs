@@ -1,5 +1,4 @@
 use chrono::prelude::Local;
-use gag::Gag;
 use std::{fmt, str::FromStr, string::ParseError};
 use vader_sentiment::SentimentIntensityAnalyzer;
 
@@ -25,7 +24,6 @@ impl Entry {
 
     fn calculate_sentiment(text: &str) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
-        let _print_gag = Gag::stdout().unwrap();
         let analyzer = SentimentIntensityAnalyzer::new();
         let scores = analyzer.polarity_scores(&text);
 
@@ -61,5 +59,22 @@ impl fmt::Display for Entry {
             "### {}\n#### {}\n---\n\n{}\n\n¶\n",
             self.timestamp, self.sentiment, self.text
         )
+    }
+}
+
+#[cfg(test)]
+mod test_entry {
+    use super::*;
+
+    #[test]
+    fn test_create_entry() {
+        let e = Entry::new("Testing this entry".into(), "%A %e %B, %Y - %H:%M");
+        assert_eq!(e.text, "Testing this entry");
+    }
+
+    #[test]
+    fn test_timestamp_is_now() {
+        let n = Entry::new("Testing the timestamp".into(),"%A %e %B, %Y - %H:%M");
+        assert_eq!(n.timestamp, Local::now().format("%A %e %B, %Y - %H:%M").to_string());
     }
 }

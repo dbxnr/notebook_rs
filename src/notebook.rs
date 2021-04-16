@@ -82,7 +82,7 @@ mod test_notebook {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.list_entries(&1, &mut stdout).unwrap();
-        assert_eq!(stdout, b"3. Saturday 13 April, 1893 - 22:17\n");
+        assert_eq!(stdout, b"3. Thursday 13 May, 2021 - 22:17\n");
     }
 
     #[test]
@@ -90,7 +90,7 @@ mod test_notebook {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.read_entry(&0, &mut stdout).unwrap();
-        assert!(stdout.starts_with("### Sunday 20 November, 1892 - 20:16".as_bytes()));
+        assert!(stdout.starts_with("### Friday 20 November, 2020 - 20:16".as_bytes()));
         assert!(stdout.ends_with("Left out the Mutlars of course.\n\n¶\n".as_bytes()));
     }
 }

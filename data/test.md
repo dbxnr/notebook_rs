@@ -1,4 +1,4 @@
-### Sunday 20 November, 1892 - 20:16
+### Friday 20 November, 2020 - 20:16
 #### 0.477 ≅ 😺
 ---
 
@@ -6,7 +6,7 @@ Have seen nothing of Lupin the whole day.  Bought a cheap address-book.  I spent
 
 
 ¶
-### Monday 21 November, 1892 - 21:14
+### Saturday 21 November, 2020 - 21:14
 #### -0.778 ≅ 😿
 ---
 
@@ -14,7 +14,7 @@ Lupin turned up for a few minutes in the evening.  He asked for a drop of brandy
 
 
 ¶
-### Wednesday 22 April, 1893 - 16:14
+### Thursday 22 April, 2021 - 16:14
 #### 0.477 ≅ 😺
 ---
 
@@ -22,7 +22,7 @@ I have of late frequently noticed Carrie rubbing her nails a good deal with an i
 
 
 ¶
-### Saturday 13 April, 1893 - 22:17
+### Thursday 13 May, 2021 - 22:17
 #### -0.471 ≅ 😾
 ---
 
