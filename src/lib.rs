@@ -2,12 +2,7 @@ use crate::notebook::Notebook;
 
 use entry::Entry;
 use serde::{Deserialize, Serialize};
-use std::{
-    env::{temp_dir, var},
-    fmt, fs,
-    io::prelude::*,
-    process::Command,
-};
+use std::{env, fmt, fs, io::prelude::*, process::Command};
 
 pub mod argparse;
 pub mod config;
@@ -59,8 +54,8 @@ struct EncryptionScheme {
 }
 
 pub fn text_from_editor() -> Option<String> {
-    let editor = var("EDITOR").unwrap();
-    let mut file_path = temp_dir();
+    let editor = env::var("EDITOR").expect("EDITOR environment variable is missing.");
+    let mut file_path = env::temp_dir();
     file_path.push("editable");
     fs::File::create(&file_path).expect("Could not create file.");
 
@@ -81,5 +76,17 @@ pub fn text_from_editor() -> Option<String> {
         None
     } else {
         Some(text)
+    }
+}
+
+#[cfg(test)]
+mod test_util {
+    use super::*;
+
+    #[test]
+    fn test_missing_editor_variable() {
+        env::remove_var("EDITOR");
+        let result = std::panic::catch_unwind(|| text_from_editor());
+        assert!(result.is_err());
     }
 }
