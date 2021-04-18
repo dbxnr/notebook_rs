@@ -12,7 +12,7 @@ impl std::default::Default for NotebookCfg {
     fn default() -> Self {
         let mut j = HashMap::new();
         let mut nb = Notebook::new();
-        nb.file = "_test.md".into();
+        nb.file = "notebook.md".into();
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
         j.insert("default".to_string(), nb);
         Self { notebooks: j }
