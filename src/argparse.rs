@@ -31,6 +31,7 @@ pub fn get_args() -> ArgMatches<'static> {
                 .long("list")
                 .takes_value(true)
                 .min_values(0)
+                .default_value("5")
                 .help("List entries"),
         )
         .arg(
@@ -69,7 +70,7 @@ pub fn parse_args(matches: ArgMatches) {
         //TODO: Add default value
         let n = matches
             .value_of("list")
-            .unwrap_or("5")
+            .unwrap()
             .parse::<usize>()
             .unwrap();
         notebook.read_entries().expect("Error reading entries");
