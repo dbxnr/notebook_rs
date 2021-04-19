@@ -2,11 +2,15 @@
   <img src="https://img.shields.io/crates/v/notebook_rs" /></a>
 
 
-## Notebook_rs
+## `notebook_rs`
 
 CLI tool for maintaining plaintext notebooks, formatted as Markdown by default.
 
 Still very much a work in progress.
+
+On first use, it will create a config file in the OS specific config directory (e.g. `~/.config/notebook_rs/`). The default notebook location is `$HOME/Documents`.
+
+Performs a fairly simple sentiment analysis on the text by default, using a Rust implementation of the VADER tool.
 
 ### Commands
 - `nb -n` Opens $EDITOR for inputting text
@@ -14,7 +18,12 @@ Still very much a work in progress.
 - `nb -l <n>` Lists n most recent entries
 - `nb -r <n>` Displays entry n
 
-Performs a fairly simple sentiment analysis on the text by default, using a Rust implementation of the VADER tool.
+### Config settings
+- `file` Path to the notebook
+- `dt_format` [Time formatting syntax](https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html)
+- `sentiment` Unimplemented
+- `encryption` Unimplemented
+
 
 ### Planned features
 - [ ] Search functionality
