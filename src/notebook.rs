@@ -1,4 +1,5 @@
 use crate::{EncryptionScheme, Entry};
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::{error::Error, fs, io::prelude::*, str::FromStr};
 
@@ -27,22 +28,30 @@ impl Notebook {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)
-            .open(&self.file)?;
+            .open(&self.file)
+            .context(format!("unable to open or create '{}'", self.file))?;
 
-        file.write_all(format!("{}", entry).as_bytes())?;
+        file.write_all(format!("{}", entry).as_bytes())
+            .context(format!("unable to write to '{}'", self.file))?;
         Ok(())
     }
 
     pub fn read_entries(&mut self) -> Result<&mut Self, Box<dyn Error>> {
-        let file = fs::read_to_string(&self.file).expect("Error reading file");
+        let file =
+            fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
         for e in file.split_terminator("¶\n") {
-            self.entries.push(Entry::from_str(&e).unwrap());
+            self.entries
+                .push(Entry::from_str(&e).context(format!("could not read line '{}'", e))?);
         }
         Ok(self)
     }
 
     pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
-        write!(stdout, "{}", &self.entries[*n])?;
+        if n >= &self.entries.len() {
+            panic!("Index out of bounds")
+        } else {
+            write!(stdout, "{}", &self.entries[*n]).context("unable to display entry")?;
+        };
 
         Ok(())
     }
@@ -58,7 +67,7 @@ impl Notebook {
         }
 
         for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-            writeln!(stdout, "{}. {}", e.0, e.1.timestamp)?;
+            writeln!(stdout, "{}. {}", e.0, e.1.timestamp).context("unable to parse entry")?;
         }
 
         Ok(())
@@ -92,5 +101,20 @@ mod test_notebook {
         nb.read_entry(&0, &mut stdout).unwrap();
         assert!(stdout.starts_with("### Friday 20 November, 2020 - 20:16".as_bytes()));
         assert!(stdout.ends_with("Left out the Mutlars of course.\n\n¶\n".as_bytes()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_outside_upper_bound() {
+        let stdout = vec![];
+        let nb = create_notebook();
+        nb.read_entry(&4, stdout).unwrap();
+    }
+
+    #[test]
+    fn test_inside_upper_bound() {
+        let stdout = vec![];
+        let nb = create_notebook();
+        nb.read_entry(&3, stdout).unwrap();
     }
 }
