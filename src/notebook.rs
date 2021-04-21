@@ -47,11 +47,12 @@ impl Notebook {
     }
 
     pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
-        if n >= &self.entries.len() {
-            panic!("Index out of bounds")
-        } else {
-            write!(stdout, "{}", &self.entries[*n]).context("unable to display entry")?;
-        };
+        let i = &self.entries.get(*n);
+
+        match i {
+            Some(e) => write!(stdout, "{}", e).context("unable to display entry")?,
+            None => writeln!(stdout, "No such entry.")?,
+        }
 
         Ok(())
     }
@@ -104,11 +105,11 @@ mod test_notebook {
     }
 
     #[test]
-    #[should_panic]
     fn test_outside_upper_bound() {
-        let stdout = vec![];
+        let mut stdout = vec![];
         let nb = create_notebook();
-        nb.read_entry(&4, stdout).unwrap();
+        nb.read_entry(&4, &mut stdout).unwrap();
+        assert_eq!(stdout, b"No such entry.\n");
     }
 
     #[test]
