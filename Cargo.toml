@@ -1,10 +1,10 @@
 [package]
 name = "notebook_rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["K Malachi Mulligan <kevinmalachimulligan@protonmail.com>"]
 edition = "2018"
-repository = "https://github.com/dbxnr/Notebook_rs"
-homepage = "https://github.com/dbxnr/Notebook_rs"
+repository = "https://github.com/dbxnr/notebook_rs"
+homepage = "https://github.com/dbxnr/notebook_rs"
 description = "CLI utility for plaintext notetaking"
 license = "MIT"
 keywords = ["notebook", "journal"]
