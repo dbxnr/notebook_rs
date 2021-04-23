@@ -30,9 +30,17 @@ pub fn get_args() -> ArgMatches<'static> {
                 .short("l")
                 .long("list")
                 .takes_value(true)
-                .min_values(1)
+                .min_values(0)
                 .help("List entries"),
         )
+        .arg(
+            Arg::with_name("verbose")
+                .short("v")
+                .long("verbose")
+                .takes_value(false)
+                .help("Quantity of information")
+                .multiple(true),
+        )       
         .arg(
             Arg::with_name("read")
                 .short("r")
