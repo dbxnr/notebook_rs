@@ -32,7 +32,7 @@ pub fn get_documents_dir() -> PathBuf {
 
 pub fn read_config(notebook: Option<&str>) -> Result<Notebook, confy::ConfyError> {
     let notebook_name = notebook.unwrap_or("default");
-    let notebook_cfg: NotebookCfg = confy::load("notebook").expect("Error reading config");
+    let notebook_cfg: NotebookCfg = confy::load("notebook_rs").expect("Error reading config");
 
     let notebook_cfg = &notebook_cfg
         .notebooks
