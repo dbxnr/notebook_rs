@@ -4,7 +4,7 @@ use std::io;
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Notebook")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("")
         .about("Note taking")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -40,7 +40,7 @@ pub fn get_args() -> ArgMatches<'static> {
                 .takes_value(false)
                 .help("Quantity of information")
                 .multiple(true),
-        )       
+        )
         .arg(
             Arg::with_name("read")
                 .short("r")
@@ -57,6 +57,7 @@ pub fn parse_args(matches: ArgMatches) {
     let j = matches.value_of("notebook");
 
     let mut notebook = config::read_config(j).expect("Cannot read config");
+    let l_verbose = &matches.occurrences_of("verbose");
 
     if matches.is_present("new") {
         let text = if matches.index_of("new") == None {
@@ -81,7 +82,7 @@ pub fn parse_args(matches: ArgMatches) {
             .parse::<usize>()
             .unwrap();
         notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::List(&notebook, n);
+        let cmd = Args::List(&notebook, n, *l_verbose);
         run_command(cmd)
     };
 
@@ -96,7 +97,7 @@ pub fn parse_args(matches: ArgMatches) {
 fn run_command(cmd: Args) {
     match cmd {
         Args::New(j, ref e) => j.write_entry(e),
-        Args::List(j, ref n) => j.list_entries(n, &mut io::stdout()),
+        Args::List(j, ref n, l) => j.list_entries(n, &mut io::stdout(), l),
         Args::Read(j, ref n) => j.read_entry(n, &mut io::stdout()),
     }
     .expect("Error matching command");

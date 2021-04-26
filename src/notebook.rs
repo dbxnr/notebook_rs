@@ -1,7 +1,7 @@
 use crate::{EncryptionScheme, Entry};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fs, io::prelude::*, str::FromStr};
+use std::{cmp, error::Error, fs, io::prelude::*, str::FromStr};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Notebook {
@@ -57,18 +57,28 @@ impl Notebook {
         Ok(())
     }
 
-    pub fn list_entries<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
+    pub fn list_entries<W: Write>(
+        &self,
+        n: &usize,
+        mut stdout: W,
+        l_verbose: u64,
+    ) -> Result<(), Box<dyn Error>> {
         // Iterates over last n elements of entries
         // Prints timestamp numbered by enumerate
         // TODO: Indexing starts from zero, possibly change to 1?
 
-        let mut i = self.entries.len();
-        if *n < i {
-            i = *n;
-        }
+        let i = cmp::min(self.entries.len(), *n);
 
-        for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-            writeln!(stdout, "{}. {}", e.0, e.1.timestamp).context("unable to parse entry")?;
+        if l_verbose > 0 {
+            for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
+                let substr = &e.1.text[..cmp::min(30, e.1.text.len())];
+                writeln!(stdout, "{}. {}... | {}", e.0, substr, e.1.timestamp)
+                    .context("unable to parse entry")?;
+            }
+        } else {
+            for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
+                writeln!(stdout, "{}. {}", e.0, e.1.timestamp).context("unable to parse entry")?;
+            }
         }
 
         Ok(())
@@ -91,8 +101,19 @@ mod test_notebook {
     fn test_list_one_entry() {
         let mut stdout = vec![];
         let nb = create_notebook();
-        nb.list_entries(&1, &mut stdout).unwrap();
+        nb.list_entries(&1, &mut stdout, 0).unwrap();
         assert_eq!(stdout, b"3. Thursday 13 May, 2021 - 22:17\n");
+    }
+
+    #[test]
+    fn test_list_one_entry_verbose() {
+        let mut stdout = vec![];
+        let nb = create_notebook();
+        nb.list_entries(&1, &mut stdout, 1).unwrap();
+        assert_eq!(
+            stdout,
+            b"3. A terrible misfortune has happ... | Thursday 13 May, 2021 - 22:17\n"
+        )
     }
 
     #[test]

@@ -7,7 +7,7 @@ use crate::Sentiment;
 
 #[derive(Clone, Debug)]
 pub struct Entry {
-    text: String,
+    pub text: String,
     pub timestamp: String,
     sentiment: Sentiment,
 }
