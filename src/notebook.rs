@@ -135,8 +135,10 @@ mod test_notebook {
 
     #[test]
     fn test_inside_upper_bound() {
-        let stdout = vec![];
+        let mut stdout = vec![];
         let nb = create_notebook();
-        nb.read_entry(&3, stdout).unwrap();
+        nb.read_entry(&3, &mut stdout).unwrap();
+        assert!(stdout.starts_with("### Thursday 13 May, 2021 - 22:17".as_bytes()));
+        assert!(stdout.ends_with("this seems an act of treachery.\n\n¶\n".as_bytes()));
     }
 }
