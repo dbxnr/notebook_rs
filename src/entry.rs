@@ -23,6 +23,11 @@ impl Entry {
         }
     }
 
+    pub fn replace_text(&mut self, text: &str) {
+        self.text.clear();
+        self.text.push_str(text);
+    }
+
     fn calculate_sentiment(text: &str) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
         let _print_gag = Gag::stdout().unwrap();
@@ -99,5 +104,15 @@ mod test_entry {
             "%A %e %B, %Y - %H:%M",
         );
         assert_eq!(e.sentiment.compound, -0.8157728811846393);
+    }
+
+    #[test]
+    fn test_replace_text() {
+        let mut e = Entry::new(
+            "Going to replace some words in this.".into(),
+            "%A %e %B, %Y - %H:%M",
+        );
+        e.replace_text("Replaced some words.");
+        assert_eq!(e.text, "Replaced some words.");
     }
 }

@@ -16,7 +16,8 @@ pub fn get_args() -> ArgMatches<'static> {
                 .min_values(0)
                 .required(false)
                 .help("Create a new note")
-                .multiple(true),
+                .multiple(true)
+                .conflicts_with_all(&["list", "verbose", "edit", "read"]),
         )
         .arg(
             Arg::with_name("notebook")
@@ -31,7 +32,8 @@ pub fn get_args() -> ArgMatches<'static> {
                 .long("list")
                 .takes_value(true)
                 .min_values(0)
-                .help("List entries"),
+                .help("List entries")
+                .conflicts_with_all(&["edit", "read"]),
         )
         .arg(
             Arg::with_name("verbose")
@@ -40,6 +42,15 @@ pub fn get_args() -> ArgMatches<'static> {
                 .takes_value(false)
                 .help("Quantity of information")
                 .multiple(true),
+        )
+        .arg(
+            Arg::with_name("edit")
+                .short("e")
+                .long("edit")
+                .takes_value(true)
+                .max_values(1)
+                .help("Edit specific entry")
+                .conflicts_with_all(&["read"]),
         )
         .arg(
             Arg::with_name("read")
@@ -60,8 +71,8 @@ pub fn parse_args(matches: ArgMatches) {
     let l_verbose = &matches.occurrences_of("verbose");
 
     if matches.is_present("new") {
-        let text = if matches.index_of("new") == None {
-            text_from_editor().unwrap()
+        let text: String = if matches.index_of("new") == None {
+            text_from_editor(None).unwrap()
         } else {
             matches
                 .values_of("new")
@@ -92,13 +103,21 @@ pub fn parse_args(matches: ArgMatches) {
         let cmd = Args::Read(&notebook, n);
         run_command(cmd)
     };
+
+    if matches.is_present("edit") {
+        let n = matches.value_of("edit").unwrap().parse::<usize>().unwrap();
+        notebook.read_entries().expect("Error reading entries");
+        let cmd = Args::Edit(notebook, n);
+        run_command(cmd)
+    };
 }
 
 fn run_command(cmd: Args) {
     match cmd {
-        Args::New(j, ref e) => j.write_entry(e),
+        Args::New(j, ref e) => j.write_entry(e, None),
         Args::List(j, ref n, l) => j.list_entries(n, &mut io::stdout(), l),
         Args::Read(j, ref n) => j.read_entry(n, &mut io::stdout()),
+        Args::Edit(mut j, n) => j.edit_entry(n),
     }
     .expect("Error matching command");
 }

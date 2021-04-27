@@ -14,6 +14,7 @@ pub enum Args<'a> {
     New(&'a Notebook, Entry),
     List(&'a Notebook, usize, u64),
     Read(&'a Notebook, usize),
+    Edit(Notebook, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -53,11 +54,17 @@ struct EncryptionScheme {
     salt: bool,
 }
 
-pub fn text_from_editor() -> Option<String> {
-    let editor = env::var("EDITOR").expect("EDITOR environment variable is missing.");
+pub fn create_temp_file(filename: Option<&str>) -> String {
     let mut file_path = env::temp_dir();
-    file_path.push("editable");
+    file_path.push(filename.unwrap_or("notebook_rs"));
+    // TODO: Should also create file
     fs::File::create(&file_path).expect("Could not create file.");
+    file_path.into_os_string().into_string().unwrap()
+}
+
+pub fn text_from_editor(path: Option<String>) -> Option<String> {
+    let editor = env::var("EDITOR").expect("EDITOR environment variable is missing.");
+    let file_path = path.unwrap_or(create_temp_file(None));
 
     Command::new(editor)
         .arg(&file_path)
@@ -86,7 +93,7 @@ mod test_util {
     #[test]
     fn test_missing_editor_variable() {
         env::remove_var("EDITOR");
-        let result = std::panic::catch_unwind(|| text_from_editor());
+        let result = std::panic::catch_unwind(|| text_from_editor(None));
         assert!(result.is_err());
     }
 }

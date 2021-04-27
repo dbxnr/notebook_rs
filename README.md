@@ -13,10 +13,12 @@ On first use, it will create a config file in the OS specific config directory (
 Performs a fairly simple sentiment analysis on the text by default, using a Rust implementation of the VADER tool.
 
 ### Commands
+- `nb -h` Summary of commands available 
 - `nb -n` Opens $EDITOR for inputting text
 - `nb -n <text>` Parses text from the commandline
-- `nb -l <n>` Lists n most recent entries
+- `nb -l <n>` Lists n most recent entries, use with `-v` for extra output
 - `nb -r <n>` Displays entry n
+- `nb -e <n>` Edit entry in system editor
 
 ### Config settings
 - `file` Path to the notebook
@@ -29,6 +31,6 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 - [ ] Search functionality
 - [ ] Parsing tags from text
 - [ ] File encryption
-- [ ] Editing entries
+- [x] Editing entries
 - [ ] Deleting entries
 - [ ] Alternative TUI

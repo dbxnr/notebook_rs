@@ -1,4 +1,4 @@
-use crate::{EncryptionScheme, Entry};
+use crate::{create_temp_file, text_from_editor, EncryptionScheme, Entry};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::{cmp, error::Error, fs, io::prelude::*, str::FromStr};
@@ -24,15 +24,28 @@ impl Notebook {
         }
     }
 
-    pub fn write_entry(&self, entry: &Entry) -> Result<(), Box<dyn Error>> {
+    pub fn write_entry(&self, entry: &Entry, path: Option<&String>) -> Result<(), Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)
-            .open(&self.file)
+            .open(path.unwrap_or(&self.file))
             .context(format!("unable to open or create '{}'", self.file))?;
 
         file.write_all(format!("{}", entry).as_bytes())
             .context(format!("unable to write to '{}'", self.file))?;
+        Ok(())
+    }
+
+    pub fn write_all_entries(&self) -> Result<(), Box<dyn Error>> {
+        // Write all entries to tmp file, overwrite notebook, remove temp file.
+        let file_path = create_temp_file(None);
+
+        for e in &self.entries {
+            self.write_entry(&e, Some(&file_path))?;
+        }
+        fs::copy(&file_path, &self.file)
+            .context(format!("unable to copy file to '{}'", &self.file))?;
+        fs::remove_file(&file_path).expect("Couldn't remove temp file.");
         Ok(())
     }
 
@@ -81,6 +94,24 @@ impl Notebook {
             }
         }
 
+        Ok(())
+    }
+
+    pub fn edit_entry(&mut self, n: usize) -> Result<(), Box<dyn Error>> {
+        let e = &mut self
+            .entries
+            .get_mut(n)
+            .expect("Unable to read entry, may not exist.");
+
+        let temp_file = create_temp_file(Some("notebook_entry"));
+        fs::write(&temp_file, &e.text).expect("Error writing to temp file");
+        let edited_entry = text_from_editor(Some(temp_file)).unwrap();
+
+        e.replace_text(&edited_entry);
+        dbg!(&e);
+
+        self.write_all_entries()
+            .expect("Failed to write all entries");
         Ok(())
     }
 }
