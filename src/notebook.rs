@@ -108,7 +108,6 @@ impl Notebook {
         let edited_entry = text_from_editor(Some(temp_file)).unwrap();
 
         e.replace_text(&edited_entry);
-        dbg!(&e);
 
         self.write_all_entries()
             .expect("Failed to write all entries");

@@ -4,7 +4,7 @@ use std::io;
 
 pub fn get_args() -> ArgMatches<'static> {
     let matches = App::new("Notebook")
-        .version("0.2.0")
+        .version("0.2.1")
         .author("")
         .about("Note taking")
         .setting(AppSettings::ArgRequiredElseHelp)
