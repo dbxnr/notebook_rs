@@ -17,7 +17,7 @@ impl Entry {
         let sentiment = Sentiment::new(score);
         Entry {
             text,
-            timestamp: Local::now().format(&dt_fmt).to_string(),
+            timestamp: Local::now().format(dt_fmt).to_string(),
             sentiment,
         }
     }
@@ -30,7 +30,7 @@ impl Entry {
     fn calculate_sentiment(text: &str) -> f64 {
         // TODO: Use pos/neg/neu as colour space coordinates
         let analyzer = SentimentIntensityAnalyzer::new();
-        let scores = analyzer.polarity_scores(&text);
+        let scores = analyzer.polarity_scores(text);
 
         *scores.get("compound").unwrap()
     }

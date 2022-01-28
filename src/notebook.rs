@@ -1,7 +1,7 @@
-use crate::{create_temp_file, text_from_editor, EncryptionScheme, Entry};
+use crate::{create_temp_file, get_user_confirm, text_from_editor, EncryptionScheme, Entry};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::{cmp, error::Error, fs, io::prelude::*, str::FromStr};
+use std::{cmp, error::Error, fs, io::prelude::*, io::stdin, str::FromStr};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Notebook {
@@ -11,6 +11,12 @@ pub struct Notebook {
     entries: Vec<Entry>,
     sentiment: bool,
     encryption: Option<EncryptionScheme>,
+}
+
+impl Default for Notebook {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Notebook {
@@ -41,7 +47,7 @@ impl Notebook {
         let file_path = create_temp_file(None);
 
         for e in &self.entries {
-            self.write_entry(&e, Some(&file_path))?;
+            self.write_entry(e, Some(&file_path))?;
         }
         fs::copy(&file_path, &self.file)
             .context(format!("unable to copy file to '{}'", &self.file))?;
@@ -54,7 +60,7 @@ impl Notebook {
             fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
         for e in file.split_terminator("¶\n") {
             self.entries
-                .push(Entry::from_str(&e).context(format!("could not read line '{}'", e))?);
+                .push(Entry::from_str(e).context(format!("could not read line '{}'", e))?);
         }
         Ok(self)
     }
@@ -97,7 +103,7 @@ impl Notebook {
         Ok(())
     }
 
-    pub fn edit_entry(&mut self, n: usize) -> Result<(), Box<dyn Error>> {
+    pub fn edit_entry(mut self, n: usize) -> Result<(), Box<dyn Error>> {
         let e = &mut self
             .entries
             .get_mut(n)
@@ -111,6 +117,17 @@ impl Notebook {
 
         self.write_all_entries()
             .expect("Failed to write all entries");
+        Ok(())
+    }
+
+    pub fn delete_entry(mut self, n: usize) -> Result<(), Box<dyn Error>> {
+        if get_user_confirm(&mut stdin().lock(), format!("Confirm delete entry {n}?")) {
+            self.entries.remove(n);
+            println!("Deleted entry {n}");
+        };
+        self.write_all_entries()
+            .expect("Failed to write all entries");
+
         Ok(())
     }
 }
@@ -171,4 +188,7 @@ mod test_notebook {
         assert!(stdout.starts_with("### Thursday 13 May, 2021 - 22:17".as_bytes()));
         assert!(stdout.ends_with("this seems an act of treachery.\n\n¶\n".as_bytes()));
     }
+
+    #[test]
+    fn test_delete_entry() {}
 }

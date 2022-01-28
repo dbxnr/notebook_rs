@@ -2,7 +2,7 @@ use crate::notebook::Notebook;
 
 use entry::Entry;
 use serde::{Deserialize, Serialize};
-use std::{env, fmt, fs, io::prelude::*, process::Command};
+use std::{env, fmt, fs, io, io::prelude::*, process::Command};
 
 pub mod argparse;
 pub mod config;
@@ -10,11 +10,12 @@ pub mod entry;
 pub mod notebook;
 
 #[derive(Clone, Debug)]
-pub enum Args<'a> {
-    New(&'a Notebook, Entry),
-    List(&'a Notebook, usize, u64),
-    Read(&'a Notebook, usize),
+pub enum Args {
+    New(Notebook, Entry),
+    List(Notebook, usize, u64),
+    Read(Notebook, usize),
     Edit(Notebook, usize),
+    Delete(Notebook, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -54,17 +55,29 @@ struct EncryptionScheme {
     salt: bool,
 }
 
+fn get_user_confirm<R>(mut reader: R, prompt: String) -> bool
+where
+    R: io::BufRead,
+{
+    print!("{prompt} (Y/n) ");
+    let _ = io::stdout().flush();
+    let mut buffer = String::new();
+
+    reader.read_line(&mut buffer).expect("Error reading input.");
+
+    buffer.starts_with('Y')
+}
+
 pub fn create_temp_file(filename: Option<&str>) -> String {
     let mut file_path = env::temp_dir();
     file_path.push(filename.unwrap_or("notebook_rs"));
-    // TODO: Should also create file
     fs::File::create(&file_path).expect("Could not create file.");
     file_path.into_os_string().into_string().unwrap()
 }
 
 pub fn text_from_editor(path: Option<String>) -> Option<String> {
     let editor = env::var("EDITOR").expect("EDITOR environment variable is missing.");
-    let file_path = path.unwrap_or(create_temp_file(None));
+    let file_path = path.unwrap_or_else(|| create_temp_file(None));
 
     Command::new(editor)
         .arg(&file_path)
@@ -95,5 +108,17 @@ mod test_util {
         env::remove_var("EDITOR");
         let result = std::panic::catch_unwind(|| text_from_editor(None));
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_user_confirm_pos() {
+        let pos = b"Y";
+        assert!(get_user_confirm(&pos[..], "Prompt".to_string()))
+    }
+
+    #[test]
+    fn test_user_confirm_neg() {
+        let pos = b"n";
+        assert_eq!(get_user_confirm(&pos[..], "Prompt".to_string()), false)
     }
 }

@@ -59,6 +59,13 @@ pub fn get_args() -> ArgMatches {
                 .takes_value(true)
                 .help("Display specific entry"),
         )
+        .arg(
+            Arg::new("delete")
+                .short('d')
+                .long("delete")
+                .takes_value(true)
+                .help("Delete specific entry"),
+        )
         .get_matches();
 
     matches
@@ -81,7 +88,7 @@ pub fn parse_args(matches: ArgMatches) {
                 .join(" ")
         };
         let e = Entry::new(text, &notebook.dt_format);
-        let cmd = Args::New(&notebook, e);
+        let cmd = Args::New(notebook.clone(), e);
         run_command(cmd)
     };
 
@@ -93,21 +100,32 @@ pub fn parse_args(matches: ArgMatches) {
             .parse::<usize>()
             .unwrap();
         notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::List(&notebook, n, *l_verbose);
+        let cmd = Args::List(notebook.clone(), n, *l_verbose);
         run_command(cmd)
     };
 
     if matches.is_present("read") {
         let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
         notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::Read(&notebook, n);
+        let cmd = Args::Read(notebook.clone(), n);
         run_command(cmd)
     };
 
     if matches.is_present("edit") {
         let n = matches.value_of("edit").unwrap().parse::<usize>().unwrap();
         notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::Edit(notebook, n);
+        let cmd = Args::Edit(notebook.clone(), n);
+        run_command(cmd)
+    };
+
+    if matches.is_present("delete") {
+        let n = matches
+            .value_of("delete")
+            .unwrap()
+            .parse::<usize>()
+            .unwrap();
+        notebook.read_entries().expect("Error reading entries");
+        let cmd = Args::Delete(notebook.clone(), n);
         run_command(cmd)
     };
 }
@@ -117,7 +135,8 @@ fn run_command(cmd: Args) {
         Args::New(j, ref e) => j.write_entry(e, None),
         Args::List(j, ref n, l) => j.list_entries(n, &mut io::stdout(), l),
         Args::Read(j, ref n) => j.read_entry(n, &mut io::stdout()),
-        Args::Edit(mut j, n) => j.edit_entry(n),
+        Args::Edit(j, n) => j.edit_entry(n),
+        Args::Delete(j, n) => j.delete_entry(n),
     }
     .expect("Error matching command");
 }
