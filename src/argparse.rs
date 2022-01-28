@@ -2,33 +2,33 @@ use crate::{config, text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
 use std::io;
 
-pub fn get_args() -> ArgMatches<'static> {
+pub fn get_args() -> ArgMatches {
     let matches = App::new("Notebook")
         .version("0.2.1")
         .author("")
         .about("Note taking")
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(
-            Arg::with_name("new")
-                .short("n")
+            Arg::new("new")
+                .short('n')
                 .long("new")
                 .takes_value(true)
                 .min_values(0)
                 .required(false)
                 .help("Create a new note")
-                .multiple(true)
+                .multiple_values(true)
                 .conflicts_with_all(&["list", "verbose", "edit", "read"]),
         )
         .arg(
-            Arg::with_name("notebook")
-                .short("j")
+            Arg::new("notebook")
+                .short('j')
                 .long("notebook")
                 .takes_value(true)
                 .help("Specify a notebook"),
         )
         .arg(
-            Arg::with_name("list")
-                .short("l")
+            Arg::new("list")
+                .short('l')
                 .long("list")
                 .takes_value(true)
                 .min_values(0)
@@ -36,16 +36,16 @@ pub fn get_args() -> ArgMatches<'static> {
                 .conflicts_with_all(&["edit", "read"]),
         )
         .arg(
-            Arg::with_name("verbose")
-                .short("v")
+            Arg::new("verbose")
+                .short('v')
                 .long("verbose")
                 .takes_value(false)
                 .help("Quantity of information")
-                .multiple(true),
+                .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("edit")
-                .short("e")
+            Arg::new("edit")
+                .short('e')
                 .long("edit")
                 .takes_value(true)
                 .max_values(1)
@@ -53,8 +53,8 @@ pub fn get_args() -> ArgMatches<'static> {
                 .conflicts_with_all(&["read"]),
         )
         .arg(
-            Arg::with_name("read")
-                .short("r")
+            Arg::new("read")
+                .short('r')
                 .long("read")
                 .takes_value(true)
                 .help("Display specific entry"),

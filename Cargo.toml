@@ -2,7 +2,7 @@
 name = "notebook_rs"
 version = "0.2.1"
 authors = ["K Malachi Mulligan <kevinmalachimulligan@protonmail.com>"]
-edition = "2018"
+edition = "2021"
 repository = "https://github.com/dbxnr/notebook_rs"
 homepage = "https://github.com/dbxnr/notebook_rs"
 description = "CLI utility for plaintext notetaking"
@@ -14,11 +14,10 @@ exclude = ["data/*"]
 
 [dependencies]
 anyhow = "1.0"
-directories = "3.0"
+directories = "4.0"
 chrono = "0.4"
-clap = "2.33"
+clap = "3.0"
 confy = "0.4"
-gag = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 vader_sentiment = "0.1"
 
