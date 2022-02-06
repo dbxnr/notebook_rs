@@ -1,7 +1,21 @@
-use notebook_rs::argparse;
+use notebook_rs::{argparse, config};
+
+// Should run_command be moved back into Notebook?
+// Flow could still be tidied up
 
 fn main() {
-    let _input = argparse::get_args();
-    let _input = argparse::parse_args(_input);
-    // TODO: Save on quit rather than throughout
+    let matches = argparse::get_args();
+    let j = matches.value_of("notebook");
+    let notebook = config::read_config(j)
+        .expect("Cannot read config")
+        .read_entries()
+        .expect("Error reading entries");
+
+    let args = argparse::parse_args(matches, &notebook);
+
+    let _notebook = notebook
+        .run_command(args)
+        .expect("Problem running command")
+        .write_all_entries()
+        .expect("Problem writing all entries");
 }

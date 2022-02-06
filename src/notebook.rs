@@ -1,7 +1,7 @@
-use crate::{create_temp_file, get_user_confirm, text_from_editor, EncryptionScheme, Entry};
+use crate::{create_temp_file, get_user_confirm, text_from_editor, Args, EncryptionScheme, Entry};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::{cmp, error::Error, fs, io::prelude::*, io::stdin, str::FromStr};
+use std::{cmp, error::Error, fs, io, io::prelude::*, str::FromStr};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Notebook {
@@ -30,7 +30,11 @@ impl Notebook {
         }
     }
 
-    pub fn write_entry(&self, entry: &Entry, path: Option<&String>) -> Result<(), Box<dyn Error>> {
+    pub fn write_entry(
+        &self,
+        entry: &Entry,
+        path: Option<&String>,
+    ) -> Result<&Self, Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
             .create(true)
@@ -39,10 +43,16 @@ impl Notebook {
 
         file.write_all(format!("{}", entry).as_bytes())
             .context(format!("unable to write to '{}'", self.file))?;
-        Ok(())
+        Ok(self)
     }
 
-    pub fn write_all_entries(&self) -> Result<(), Box<dyn Error>> {
+    pub fn new_entry(&mut self, entry: Entry) -> Result<&Self, Box<dyn Error>> {
+        self.entries.push(entry);
+
+        Ok(self)
+    }
+
+    pub fn write_all_entries(&self) -> Result<&Self, Box<dyn Error>> {
         // Write all entries to tmp file, overwrite notebook, remove temp file.
         let file_path = create_temp_file(None);
 
@@ -52,20 +62,21 @@ impl Notebook {
         fs::copy(&file_path, &self.file)
             .context(format!("unable to copy file to '{}'", &self.file))?;
         fs::remove_file(&file_path).expect("Couldn't remove temp file.");
-        Ok(())
+        Ok(self)
     }
 
-    pub fn read_entries(&mut self) -> Result<&mut Self, Box<dyn Error>> {
+    pub fn read_entries(mut self) -> Result<Self, Box<dyn Error>> {
         let file =
             fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
         for e in file.split_terminator("¶\n") {
-            self.entries
-                .push(Entry::from_str(e).context(format!("could not read line '{}'", e))?);
+            self.entries.push(
+                Entry::from_str(e).context(format!("could not read line '{}'", e.to_owned()))?,
+            );
         }
         Ok(self)
     }
 
-    pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<(), Box<dyn Error>> {
+    pub fn read_entry<W: Write>(&self, n: &usize, mut stdout: W) -> Result<&Self, Box<dyn Error>> {
         let i = &self.entries.get(*n);
 
         match i {
@@ -73,7 +84,7 @@ impl Notebook {
             None => writeln!(stdout, "No such entry.")?,
         }
 
-        Ok(())
+        Ok(self)
     }
 
     pub fn list_entries<W: Write>(
@@ -81,7 +92,7 @@ impl Notebook {
         n: &usize,
         mut stdout: W,
         l_verbose: u64,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<&Self, Box<dyn Error>> {
         // Iterates over last n elements of entries
         // Prints timestamp numbered by enumerate
         // TODO: Indexing starts from zero, possibly change to 1?
@@ -100,10 +111,10 @@ impl Notebook {
             }
         }
 
-        Ok(())
+        Ok(self)
     }
 
-    pub fn edit_entry(mut self, n: usize) -> Result<(), Box<dyn Error>> {
+    pub fn edit_entry(&mut self, n: usize) -> Result<&Self, Box<dyn Error>> {
         let e = &mut self
             .entries
             .get_mut(n)
@@ -115,20 +126,33 @@ impl Notebook {
 
         e.replace_text(&edited_entry);
 
-        self.write_all_entries()
-            .expect("Failed to write all entries");
-        Ok(())
+        Ok(self)
     }
 
-    pub fn delete_entry(mut self, n: usize) -> Result<(), Box<dyn Error>> {
-        if get_user_confirm(&mut stdin().lock(), format!("Confirm delete entry {n}?")) {
+    pub fn delete_entry(&mut self, n: usize) -> Result<&Self, Box<dyn Error>> {
+        if get_user_confirm(
+            &mut io::stdin().lock(),
+            format!("Confirm delete entry {n}?"),
+        ) {
             self.entries.remove(n);
             println!("Deleted entry {n}");
         };
-        self.write_all_entries()
-            .expect("Failed to write all entries");
 
-        Ok(())
+        Ok(self)
+    }
+
+    pub fn run_command(mut self, cmd: Args) -> Result<Self, Box<dyn Error>> {
+        match cmd {
+            Args::New(e) => self.new_entry(e),
+            Args::List(ref n, l) => self.list_entries(n, &mut io::stdout(), l),
+            Args::Read(ref n) => self.read_entry(n, &mut io::stdout()),
+            Args::Edit(n) => self.edit_entry(n),
+            Args::Delete(n) => self.delete_entry(n),
+            Args::Unimplemented() => panic!("Not implemented"),
+        }
+        .expect("Error matching command");
+
+        Ok(self)
     }
 }
 

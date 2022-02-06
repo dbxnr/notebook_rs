@@ -15,10 +15,11 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 ### Commands
 - `nb -h` Summary of commands available 
 - `nb -n` Opens $EDITOR for inputting text
-- `nb -n <text>` Parses text from the commandline
-- `nb -l <n>` Lists n most recent entries, use with `-v` for extra output
-- `nb -r <n>` Displays entry n
-- `nb -e <n>` Edit entry in system editor
+- `nb -n <text>` Parse entry text from the commandline
+- `nb -l <n>` List *n* most recent entries, use with `-v` for extra output
+- `nb -r <n>` Display entry *n*
+- `nb -e <n>` Edit entry *n* in system editor
+- `nb -d <n>` Delete entry *n*
 
 ### Config settings
 - `file` Path to the notebook
@@ -32,5 +33,5 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 - [ ] Parsing tags from text
 - [ ] File encryption
 - [x] Editing entries
-- [ ] Deleting entries
+- [x] Deleting entries
 - [ ] Alternative TUI

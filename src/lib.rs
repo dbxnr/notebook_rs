@@ -11,11 +11,12 @@ pub mod notebook;
 
 #[derive(Clone, Debug)]
 pub enum Args {
-    New(Notebook, Entry),
-    List(Notebook, usize, u64),
-    Read(Notebook, usize),
-    Edit(Notebook, usize),
-    Delete(Notebook, usize),
+    New(Entry),
+    List(usize, u64),
+    Read(usize),
+    Edit(usize),
+    Delete(usize),
+    Unimplemented(),
 }
 
 #[derive(Clone, Debug)]

@@ -1,6 +1,5 @@
-use crate::{config, text_from_editor, Args, Entry};
+use crate::{text_from_editor, Args, Entry, Notebook};
 use clap::{App, AppSettings, Arg, ArgMatches};
-use std::io;
 
 pub fn get_args() -> ArgMatches {
     let matches = App::new("Notebook")
@@ -71,11 +70,9 @@ pub fn get_args() -> ArgMatches {
     matches
 }
 
-pub fn parse_args(matches: ArgMatches) {
-    let j = matches.value_of("notebook");
-
-    let mut notebook = config::read_config(j).expect("Cannot read config");
+pub fn parse_args(matches: ArgMatches, notebook: &Notebook) -> Args {
     let l_verbose = &matches.occurrences_of("verbose");
+    let mut cmd = Args::Unimplemented();
 
     if matches.is_present("new") {
         let text: String = if matches.index_of("new") == None {
@@ -88,55 +85,28 @@ pub fn parse_args(matches: ArgMatches) {
                 .join(" ")
         };
         let e = Entry::new(text, &notebook.dt_format);
-        let cmd = Args::New(notebook.clone(), e);
-        run_command(cmd)
-    };
-
-    if matches.is_present("list") {
-        //TODO: Add default value
+        cmd = Args::New(e);
+    } else if matches.is_present("list") {
         let n = matches
             .value_of("list")
             .unwrap_or("5")
             .parse::<usize>()
             .unwrap();
-        notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::List(notebook.clone(), n, *l_verbose);
-        run_command(cmd)
-    };
-
-    if matches.is_present("read") {
+        cmd = Args::List(n, *l_verbose);
+    } else if matches.is_present("read") {
         let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
-        notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::Read(notebook.clone(), n);
-        run_command(cmd)
-    };
-
-    if matches.is_present("edit") {
+        cmd = Args::Read(n);
+    } else if matches.is_present("edit") {
         let n = matches.value_of("edit").unwrap().parse::<usize>().unwrap();
-        notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::Edit(notebook.clone(), n);
-        run_command(cmd)
-    };
-
-    if matches.is_present("delete") {
+        cmd = Args::Edit(n);
+    } else if matches.is_present("delete") {
         let n = matches
             .value_of("delete")
             .unwrap()
             .parse::<usize>()
             .unwrap();
-        notebook.read_entries().expect("Error reading entries");
-        let cmd = Args::Delete(notebook.clone(), n);
-        run_command(cmd)
+        cmd = Args::Delete(n);
     };
-}
 
-fn run_command(cmd: Args) {
-    match cmd {
-        Args::New(j, ref e) => j.write_entry(e, None),
-        Args::List(j, ref n, l) => j.list_entries(n, &mut io::stdout(), l),
-        Args::Read(j, ref n) => j.read_entry(n, &mut io::stdout()),
-        Args::Edit(j, n) => j.edit_entry(n),
-        Args::Delete(j, n) => j.delete_entry(n),
-    }
-    .expect("Error matching command");
+    cmd
 }
