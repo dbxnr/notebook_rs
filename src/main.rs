@@ -1,8 +1,5 @@
 use notebook_rs::{argparse, config};
 
-// Should run_command be moved back into Notebook?
-// Flow could still be tidied up
-
 fn main() {
     let matches = argparse::get_args();
     let j = matches.value_of("notebook");
