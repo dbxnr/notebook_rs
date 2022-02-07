@@ -8,7 +8,7 @@ fn main() {
     let j = matches.value_of("notebook");
     let notebook = config::read_config(j)
         .expect("Cannot read config")
-        .read_entries()
+        .populate_notebook()
         .expect("Error reading entries");
 
     let args = argparse::parse_args(matches, &notebook);

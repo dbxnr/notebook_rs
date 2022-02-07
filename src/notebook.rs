@@ -65,7 +65,7 @@ impl Notebook {
         Ok(self)
     }
 
-    pub fn read_entries(mut self) -> Result<Self, Box<dyn Error>> {
+    pub fn populate_notebook(mut self) -> Result<Self, Box<dyn Error>> {
         let file =
             fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
         for e in file.split_terminator("¶\n") {
@@ -129,14 +129,18 @@ impl Notebook {
         Ok(self)
     }
 
-    pub fn delete_entry(&mut self, n: usize) -> Result<&Self, Box<dyn Error>> {
-        if get_user_confirm(
-            &mut io::stdin().lock(),
-            format!("Confirm delete entry {n}?"),
-        ) {
+    pub fn delete_entry(&mut self, n: usize, conf_req: bool) -> Result<&Self, Box<dyn Error>> {
+        if conf_req
+            && get_user_confirm(
+                &mut io::stdin().lock(),
+                format!("Confirm delete entry {n}?"),
+            )
+        {
             self.entries.remove(n);
             println!("Deleted entry {n}");
-        };
+        } else {
+            self.entries.remove(n);
+        }
 
         Ok(self)
     }
@@ -147,7 +151,7 @@ impl Notebook {
             Args::List(ref n, l) => self.list_entries(n, &mut io::stdout(), l),
             Args::Read(ref n) => self.read_entry(n, &mut io::stdout()),
             Args::Edit(n) => self.edit_entry(n),
-            Args::Delete(n) => self.delete_entry(n),
+            Args::Delete(n, conf) => self.delete_entry(n, conf),
             Args::Unimplemented() => panic!("Not implemented"),
         }
         .expect("Error matching command");
@@ -164,8 +168,17 @@ mod test_notebook {
         let mut nb = Notebook::new();
         nb.file = "data/test.md".into();
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
-        nb.read_entries().expect("Error reading entries.");
+        let nb = nb.populate_notebook().expect("Error reading entries.");
         nb
+    }
+
+    #[test]
+    fn test_populate_notebook() {
+        let mut nb = Notebook::new();
+        nb.file = "data/test.md".into();
+        nb.dt_format = "%A %e %B, %Y - %H:%M".into();
+        let nb = nb.populate_notebook().expect("Error reading entries.");
+        assert_eq!(nb.entries.len(), 4);
     }
 
     #[test]
@@ -214,5 +227,12 @@ mod test_notebook {
     }
 
     #[test]
-    fn test_delete_entry() {}
+    fn test_delete_entry() {
+        let mut stdout = vec![];
+        let mut nb = create_notebook();
+        assert_eq!(nb.entries.len(), 4);
+        nb.read_entry(&0, &mut stdout).unwrap();
+        nb.delete_entry(2, false).unwrap();
+        assert_eq!(nb.entries.len(), 3);
+    }
 }

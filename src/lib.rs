@@ -15,7 +15,7 @@ pub enum Args {
     List(usize, u64),
     Read(usize),
     Edit(usize),
-    Delete(usize),
+    Delete(usize, bool),
     Unimplemented(),
 }
 

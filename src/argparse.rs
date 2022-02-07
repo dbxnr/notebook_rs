@@ -105,7 +105,7 @@ pub fn parse_args(matches: ArgMatches, notebook: &Notebook) -> Args {
             .unwrap()
             .parse::<usize>()
             .unwrap();
-        cmd = Args::Delete(n);
+        cmd = Args::Delete(n, true);
     };
 
     cmd
