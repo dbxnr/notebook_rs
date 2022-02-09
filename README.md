@@ -20,6 +20,7 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 - `nb -r <n>` Display entry *n*
 - `nb -e <n>` Edit entry *n* in system editor
 - `nb -d <n>` Delete entry *n*
+- `nb -s <pattern>` Search for pattern in entries
 
 ### Config settings
 - `file` Path to the notebook
@@ -30,6 +31,8 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 
 ### Planned features
 - [ ] Search functionality
+  - [x] Full-text search with regex
+  - [ ] Search by date range
 - [ ] Parsing tags from text
 - [ ] File encryption
 - [x] Editing entries

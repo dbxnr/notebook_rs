@@ -65,6 +65,13 @@ pub fn get_args() -> ArgMatches {
                 .takes_value(true)
                 .help("Delete specific entry"),
         )
+        .arg(
+            Arg::new("search")
+                .short('s')
+                .long("search")
+                .takes_value(true)
+                .help("Search entries for text"),
+        )
         .get_matches();
 
     matches
@@ -106,6 +113,13 @@ pub fn parse_args(matches: ArgMatches, notebook: &Notebook) -> Args {
             .parse::<usize>()
             .unwrap();
         cmd = Args::Delete(n, true);
+    } else if matches.is_present("search") {
+        let q = Box::new(matches)
+            .value_of("search")
+            .unwrap()
+            .parse()
+            .unwrap();
+        cmd = Args::Search(q)
     };
 
     cmd

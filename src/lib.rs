@@ -16,6 +16,7 @@ pub enum Args {
     Read(usize),
     Edit(usize),
     Delete(usize, bool),
+    Search(String),
     Unimplemented(),
 }
 

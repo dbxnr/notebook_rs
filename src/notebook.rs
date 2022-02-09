@@ -1,5 +1,7 @@
 use crate::{create_temp_file, get_user_confirm, text_from_editor, Args, EncryptionScheme, Entry};
+use ansi_term::{Colour::Red, Style};
 use anyhow::{Context, Result};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{cmp, error::Error, fs, io, io::prelude::*, str::FromStr};
 
@@ -11,6 +13,25 @@ pub struct Notebook {
     entries: Vec<Entry>,
     sentiment: bool,
     encryption: Option<EncryptionScheme>,
+    #[serde(skip)]
+    search_result: Vec<SearchResult>,
+}
+
+#[derive(Clone, Debug)]
+struct SearchResult {
+    pub pattern: Regex,
+    pub entry_idx: usize,
+    pub location: Vec<String>,
+}
+
+impl SearchResult {
+    pub fn new(pattern: Regex, entry_idx: usize, location: Vec<String>) -> SearchResult {
+        SearchResult {
+            pattern,
+            entry_idx,
+            location,
+        }
+    }
 }
 
 impl Default for Notebook {
@@ -27,6 +48,7 @@ impl Notebook {
             entries: vec![],
             sentiment: true,
             encryption: None,
+            search_result: vec![],
         }
     }
 
@@ -102,12 +124,19 @@ impl Notebook {
         if l_verbose > 0 {
             for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
                 let substr = &e.1.text[..cmp::min(30, e.1.text.len())];
-                writeln!(stdout, "{}. {}... | {}", e.0, substr, e.1.timestamp)
-                    .context("unable to parse entry")?;
+                writeln!(
+                    stdout,
+                    "{}. {}... | {}",
+                    e.0,
+                    substr,
+                    e.1.timestamp.format(&self.dt_format)
+                )
+                .context("unable to parse entry")?;
             }
         } else {
             for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-                writeln!(stdout, "{}. {}", e.0, e.1.timestamp).context("unable to parse entry")?;
+                writeln!(stdout, "{}. {}", e.0, e.1.timestamp.format(&self.dt_format))
+                    .context("unable to parse entry")?;
             }
         }
 
@@ -152,10 +181,58 @@ impl Notebook {
             Args::Read(ref n) => self.read_entry(n, &mut io::stdout()),
             Args::Edit(n) => self.edit_entry(n),
             Args::Delete(n, conf) => self.delete_entry(n, conf),
+            Args::Search(s) => self
+                .search(s)
+                .unwrap()
+                .output_search_results(&mut io::stdout()),
             Args::Unimplemented() => panic!("Not implemented"),
         }
         .expect("Error matching command");
 
+        Ok(self)
+    }
+
+    fn search(&mut self, q: String) -> Result<&Self, Box<dyn Error>> {
+        // TODO: Currently case-sensitive, add flag to toggle
+        let regex = Regex::new(&q).expect("Error compiling regex.");
+
+        for (e_idx, e) in self.entries.iter().enumerate() {
+            if regex.is_match(&e.text) {
+                let matches = regex
+                    .find_iter(&e.text)
+                    .map(|digits| digits.as_str().to_owned())
+                    .collect::<Vec<String>>();
+
+                self.search_result
+                    .push(SearchResult::new(regex.clone(), e_idx, matches));
+            }
+        }
+
+        Ok(self)
+    }
+
+    fn output_search_results<W: Write>(&self, mut stdout: W) -> Result<&Self, Box<dyn Error>> {
+        // Break string into 50 char blocks
+        // Iterate over blocks
+        // Print only ones with matches
+        for r in &self.search_result {
+            write!(
+                stdout,
+                "{}: {}\t",
+                Style::new().bold().paint(r.entry_idx.to_string()),
+                Style::new()
+                    .bold()
+                    .paint(self.entries[r.entry_idx].timestamp.to_string())
+            )?;
+            for (idx, c) in r.pattern.split(&self.entries[r.entry_idx].text).enumerate() {
+                write!(stdout, "{}", c)?;
+
+                if let Some(c) = r.location.get(idx) {
+                    write!(stdout, "{}", Red.paint(c))?;
+                };
+            }
+            writeln!(stdout)?;
+        }
         Ok(self)
     }
 }
@@ -179,6 +256,15 @@ mod test_notebook {
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
         let nb = nb.populate_notebook().expect("Error reading entries.");
         assert_eq!(nb.entries.len(), 4);
+    }
+
+    #[test]
+    fn test_new_entry() {
+        let e = Entry::new("Testing this entry".into(), "%A %e %B, %Y - %H:%M");
+        let mut nb = create_notebook();
+        nb.new_entry(e).unwrap();
+        assert_eq!(nb.entries.len(), 5);
+        assert_eq!(nb.entries[4].text, "Testing this entry");
     }
 
     #[test]
@@ -234,5 +320,53 @@ mod test_notebook {
         nb.read_entry(&0, &mut stdout).unwrap();
         nb.delete_entry(2, false).unwrap();
         assert_eq!(nb.entries.len(), 3);
+    }
+
+    #[test]
+    fn test_search_word_single_result() {
+        let mut nb = create_notebook();
+        nb.search("brandy".into()).unwrap();
+        assert_eq!(nb.search_result.len(), 1);
+    }
+
+    #[test]
+    fn test_search_phrase_single_result() {
+        let mut nb = create_notebook();
+        nb.search("poisoned by some lobster".into()).unwrap();
+        assert_eq!(nb.search_result.len(), 1);
+    }
+
+    #[test]
+    fn test_search_multiple_results() {
+        let mut nb = create_notebook();
+        nb.search("Lupin".into()).unwrap();
+        assert_eq!(nb.search_result.len(), 3);
+    }
+
+    #[test]
+    fn test_search_zero_results() {
+        let mut nb = create_notebook();
+        nb.search("zebra".into()).unwrap();
+        assert_eq!(nb.search_result.len(), 0);
+    }
+
+    #[test]
+    fn test_search_correct_location() {
+        let mut nb = create_notebook();
+        nb.search("Crowbillon".into()).unwrap();
+        assert_eq!(nb.search_result[0].location[0], "Crowbillon");
+        nb.search("’".into()).unwrap();
+        assert_eq!(nb.search_result[1].location[1], "’");
+    }
+
+    #[test]
+    fn test_search_output() {
+        let mut stdout = vec![];
+        let mut nb = create_notebook();
+        nb.search("Crowbillon".into())
+            .unwrap()
+            .output_search_results(&mut stdout)
+            .unwrap();
+        assert!(&stdout.starts_with("\u{1b}[1m3\u{1b}[0m: \u{1b}[1m2021-05-13 22:17:00\u{1b}[0m\tA terrible misfortune has happened:".as_bytes()));
     }
 }
