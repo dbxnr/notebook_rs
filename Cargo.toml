@@ -1,6 +1,6 @@
 [package]
 name = "notebook_rs"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["K Malachi Mulligan <kevinmalachimulligan@protonmail.com>"]
 edition = "2021"
 repository = "https://github.com/dbxnr/notebook_rs"
@@ -13,16 +13,19 @@ readme = "README.md"
 exclude = ["data/*"]
 
 [dependencies]
-ansi_term = "0.12"
-anyhow = "1.0"
-directories = "4.0"
-chrono = "0.4"
-clap = "3.0"
+ansi_term = "0.12.1"
+anyhow = "1.0.65"
+directories = "4.0.1"
+chrono = "0.4.22"
+clap = "3.2.18"
 confy = "0.4"
-regex = "1.5"
-serde = { version = "1.0", features = ["derive"] }
-vader_sentiment = "0.1"
+regex = "1.6.0"
+serde = { version = "1.0.145", features = ["derive"] }
+vader_sentiment = "0.1.1"
 
 [[bin]]
 name = "nb"
 path = "src/main.rs"
+
+[dev-dependencies]
+trycmd = { version = "0.13.6", features = ["examples"] }
