@@ -3,7 +3,7 @@ use ansi_term::{Colour::Red, Style};
 use anyhow::{Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{cmp, error::Error, fs, io, io::prelude::*, str::FromStr};
+use std::{cmp, error::Error, fs, fs::OpenOptions, io, io::prelude::*, str::FromStr};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Notebook {
@@ -87,10 +87,19 @@ impl Notebook {
         Ok(self)
     }
 
-    pub fn populate_notebook(mut self) -> Result<Self, Box<dyn Error>> {
-        let file =
-            fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
-        for e in file.split_terminator("¶\n") {
+    /// Opens the file, creating it if necessary.
+    /// Reads the contents to a string
+    /// Populates the Notebook instance with entries
+    pub fn populate_notebook(mut self: Notebook) -> Result<Self, Box<dyn Error>> {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(&self.file)?;
+        let mut buffer = String::new();
+        #[allow(clippy::unnecessary_operation)]
+        Some(file.read_to_string(&mut buffer)?);
+
+        for e in buffer.split_terminator("¶\n") {
             self.entries.push(
                 Entry::from_str(e).context(format!("could not read line '{}'", e.to_owned()))?,
             );
