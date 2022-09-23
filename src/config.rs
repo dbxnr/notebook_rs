@@ -45,8 +45,19 @@ pub fn read_config(notebook: Option<&str>) -> Result<Notebook, confy::ConfyError
 }
 
 pub fn check_create_file(path: &String) -> Result<PathBuf, Box<dyn Error>> {
-    // This should return the path
     let p = PathBuf::from(path);
     OpenOptions::new().write(true).create(true).open(&p)?;
     Ok(p)
+}
+
+#[cfg(test)]
+mod test_config {
+    use super::*;
+
+    #[test]
+    fn test_check_create_file() {
+        let filename = String::from("./data/blank.md");
+        let p = check_create_file(&filename).unwrap();
+        assert!(p.exists());
+    }
 }

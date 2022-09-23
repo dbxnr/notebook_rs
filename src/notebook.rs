@@ -259,14 +259,6 @@ mod test_notebook {
     }
 
     #[test]
-    fn test_populate_blank_notebook() {
-        let mut nb = Notebook::new();
-        nb.file = "data/empty.md".into();
-        nb.dt_format = "%A %e %B, %Y - %H:%M".into();
-        let nb = nb.populate_notebook().expect("Error reading notebook.");
-        assert_eq!(nb.entries.len(), 0);
-    }
-    #[test]
     fn test_new_entry() {
         let e = Entry::new("Testing this entry".into(), "%A %e %B, %Y - %H:%M");
         let mut nb = create_notebook();
