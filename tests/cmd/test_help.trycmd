@@ -1,0 +1,22 @@
+```
+$ nb -h
+Notebook 0.2.1
+
+Note taking
+
+USAGE:
+    nb [OPTIONS]
+
+OPTIONS:
+    -d, --delete <delete>        Delete specific entry
+    -e, --edit <edit>...         Edit specific entry
+    -h, --help                   Print help information
+    -j, --notebook <notebook>    Specify a notebook
+    -l, --list [<list>...]       List entries
+    -n, --new [<new>...]         Create a new note
+    -r, --read <read>            Display specific entry
+    -s, --search <search>        Search entries for text
+    -v, --verbose                Quantity of information
+    -V, --version                Print version information
+
+```
