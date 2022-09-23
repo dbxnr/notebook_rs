@@ -1,4 +1,4 @@
-use crate::{text_from_editor, Args, Entry, Notebook};
+use crate::{text_from_editor, Args, Entry};
 use clap::{App, AppSettings, Arg, ArgMatches};
 
 pub fn get_args() -> ArgMatches {
@@ -77,7 +77,7 @@ pub fn get_args() -> ArgMatches {
     matches
 }
 
-pub fn parse_args(matches: ArgMatches, notebook: &Notebook) -> Args {
+pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
     let l_verbose = &matches.occurrences_of("verbose");
     let mut cmd = Args::Unimplemented();
 
@@ -91,7 +91,7 @@ pub fn parse_args(matches: ArgMatches, notebook: &Notebook) -> Args {
                 .collect::<Vec<&str>>()
                 .join(" ")
         };
-        let e = Entry::new(text, &notebook.dt_format);
+        let e = Entry::new(text, dt_format);
         cmd = Args::New(e);
     } else if matches.is_present("list") {
         let n = matches

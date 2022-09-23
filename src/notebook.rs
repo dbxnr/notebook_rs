@@ -3,7 +3,7 @@ use ansi_term::{Colour::Red, Style};
 use anyhow::{Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{cmp, error::Error, fs, fs::OpenOptions, io, io::prelude::*, str::FromStr};
+use std::{cmp, error::Error, fs, io, io::prelude::*, str::FromStr};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Notebook {
@@ -52,19 +52,15 @@ impl Notebook {
         }
     }
 
-    pub fn write_entry(
-        &self,
-        entry: &Entry,
-        path: Option<&String>,
-    ) -> Result<&Self, Box<dyn Error>> {
+    pub fn write_entry(&self, entry: &Entry, path: &String) -> Result<&Self, Box<dyn Error>> {
         let mut file = fs::OpenOptions::new()
             .append(true)
-            .create(true)
-            .open(path.unwrap_or(&self.file))
+            .open(path)
             .context(format!("unable to open or create '{}'", self.file))?;
 
         file.write_all(format!("{}", entry).as_bytes())
             .context(format!("unable to write to '{}'", self.file))?;
+
         Ok(self)
     }
 
@@ -76,30 +72,25 @@ impl Notebook {
 
     pub fn write_all_entries(&self) -> Result<&Self, Box<dyn Error>> {
         // Write all entries to tmp file, overwrite notebook, remove temp file.
-        let file_path = create_temp_file(None);
+        let temp_file_path = create_temp_file(None);
 
         for e in &self.entries {
-            self.write_entry(e, Some(&file_path))?;
+            self.write_entry(e, &temp_file_path)
+                .expect("Error writing to temp file");
         }
-        fs::copy(&file_path, &self.file)
+        fs::copy(&temp_file_path, &self.file)
             .context(format!("unable to copy file to '{}'", &self.file))?;
-        fs::remove_file(&file_path).expect("Couldn't remove temp file.");
+        fs::remove_file(&temp_file_path).expect("Couldn't remove temp file.");
         Ok(self)
     }
 
-    /// Opens the file, creating it if necessary.
+    /// Opens the file
     /// Reads the contents to a string
     /// Populates the Notebook instance with entries
-    pub fn populate_notebook(mut self: Notebook) -> Result<Self, Box<dyn Error>> {
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(&self.file)?;
-        let mut buffer = String::new();
-        #[allow(clippy::unnecessary_operation)]
-        Some(file.read_to_string(&mut buffer)?);
-
-        for e in buffer.split_terminator("¶\n") {
+    pub fn populate_notebook(mut self) -> Result<Self, Box<dyn Error>> {
+        let file =
+            fs::read_to_string(&self.file).context(format!("unable to open '{}'", self.file))?;
+        for e in file.split_terminator("¶\n") {
             self.entries.push(
                 Entry::from_str(e).context(format!("could not read line '{}'", e.to_owned()))?,
             );
@@ -254,7 +245,7 @@ mod test_notebook {
         let mut nb = Notebook::new();
         nb.file = "data/test.md".into();
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
-        let nb = nb.populate_notebook().expect("Error reading entries.");
+        let nb = nb.populate_notebook().expect("Error reading notebook.");
         nb
     }
 
@@ -263,10 +254,18 @@ mod test_notebook {
         let mut nb = Notebook::new();
         nb.file = "data/test.md".into();
         nb.dt_format = "%A %e %B, %Y - %H:%M".into();
-        let nb = nb.populate_notebook().expect("Error reading entries.");
+        let nb = nb.populate_notebook().expect("Error reading notebook.");
         assert_eq!(nb.entries.len(), 4);
     }
 
+    #[test]
+    fn test_populate_blank_notebook() {
+        let mut nb = Notebook::new();
+        nb.file = "data/empty.md".into();
+        nb.dt_format = "%A %e %B, %Y - %H:%M".into();
+        let nb = nb.populate_notebook().expect("Error reading notebook.");
+        assert_eq!(nb.entries.len(), 0);
+    }
     #[test]
     fn test_new_entry() {
         let e = Entry::new("Testing this entry".into(), "%A %e %B, %Y - %H:%M");
@@ -305,7 +304,7 @@ mod test_notebook {
     }
 
     #[test]
-    fn test_outside_upper_bound() {
+    fn test_read_outside_upper_bound() {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.read_entry(&4, &mut stdout).unwrap();
@@ -313,7 +312,7 @@ mod test_notebook {
     }
 
     #[test]
-    fn test_inside_upper_bound() {
+    fn test_read_inside_upper_bound() {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.read_entry(&3, &mut stdout).unwrap();

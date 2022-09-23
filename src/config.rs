@@ -1,7 +1,7 @@
 use crate::Notebook;
 use directories::{BaseDirs, UserDirs};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, error::Error, fs::OpenOptions, path::PathBuf};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -31,6 +31,7 @@ pub fn get_documents_dir() -> PathBuf {
 }
 
 pub fn read_config(notebook: Option<&str>) -> Result<Notebook, confy::ConfyError> {
+    // This should return the config file
     let notebook_name = notebook.unwrap_or("default");
     let notebook_cfg: NotebookCfg = confy::load("notebook_rs").expect("Error reading config");
 
@@ -41,4 +42,11 @@ pub fn read_config(notebook: Option<&str>) -> Result<Notebook, confy::ConfyError
         .to_owned();
 
     Ok(notebook_cfg.to_owned())
+}
+
+pub fn check_create_file(path: &String) -> Result<PathBuf, Box<dyn Error>> {
+    // This should return the path
+    let p = PathBuf::from(path);
+    OpenOptions::new().write(true).create(true).open(&p)?;
+    Ok(p)
 }
