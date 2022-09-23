@@ -1,6 +1,5 @@
-<a href="https://crates.io/crates/notebook_rs" alt="crates.io">
-  <img src="https://img.shields.io/crates/v/notebook_rs" /></a>
-
+[![CI](https://github.com/dbxnr/notebook_rs/actions/workflows/rust.yml/badge.svg)](https://github.com/dbxnr/notebook_rs/actions/workflows/rust.yml)
+[![crates.io](https://img.shields.io/crates/v/notebook_rs)](https://crates.io/crates/notebook_rs)
 
 ## `notebook_rs`
 
