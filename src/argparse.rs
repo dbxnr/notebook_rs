@@ -19,7 +19,7 @@ pub fn get_args() -> ArgMatches {
                 .conflicts_with_all(&["list", "verbose", "edit", "read"]),
         )
         .arg(
-            Arg::new("notebook")
+            Arg::new("notebook_name")
                 .short('j')
                 .long("notebook")
                 .takes_value(true)
@@ -71,6 +71,13 @@ pub fn get_args() -> ArgMatches {
                 .long("search")
                 .takes_value(true)
                 .help("Search entries for text"),
+        )
+        .arg(
+            Arg::new("config")
+                .short('c')
+                .long("config")
+                .takes_value(true)
+                .help("Path of config file to read"),
         )
         .get_matches();
 

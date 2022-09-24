@@ -1,0 +1,4 @@
+[notebooks.default]
+file = './data/test.md'
+dt_format = '%A %e %B, %Y - %H:%M'
+sentiment = true
