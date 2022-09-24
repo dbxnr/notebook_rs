@@ -28,4 +28,4 @@ name = "nb"
 path = "src/main.rs"
 
 [dev-dependencies]
-trycmd = { version = "0.13.6", features = ["examples"] }
+snapbox = "0.4.0"

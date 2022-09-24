@@ -74,6 +74,7 @@ impl Notebook {
         // Write all entries to tmp file, overwrite notebook, remove temp file.
         let temp_file_path = create_temp_file(None);
 
+        assert!(!self.entries.is_empty()); // Guard against file being wiped
         for e in &self.entries {
             self.write_entry(e, &temp_file_path)
                 .expect("Error writing to temp file");
