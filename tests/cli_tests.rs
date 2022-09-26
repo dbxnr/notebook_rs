@@ -7,9 +7,20 @@ fn test_read_first() {
         .arg("-c")
         .arg("data/test_config.toml")
         .arg("-r")
-        .arg("1")
+        .arg("0")
         .assert()
         .stdout_eq_path("tests/cmd/test_read_first.stdout");
+}
+
+#[test]
+fn test_read_last() {
+    Command::new(cargo_bin!("nb"))
+        .arg("-c")
+        .arg("data/test_config.toml")
+        .arg("-r")
+        .arg("3")
+        .assert()
+        .stdout_eq_path("tests/cmd/test_read_last.stdout");
 }
 
 #[test]
