@@ -1,19 +1,20 @@
-Notebook 0.2.1
-
+Notebook 
 Note taking
 
 USAGE:
-    nb [OPTIONS]
+    nb [OPTIONS] <SUBCOMMAND>
 
 OPTIONS:
     -c, --config <config>             Path of config file to read
-    -d, --delete <delete>             Delete specific entry
-    -e, --edit <edit>...              Edit specific entry
     -h, --help                        Print help information
     -j, --notebook <notebook_name>    Specify a notebook
-    -l, --list [<list>...]            List entries
-    -n, --new [<new>...]              Create a new note
-    -r, --read <read>                 Display specific entry
-    -s, --search <search>             Search entries for text
-    -v, --verbose                     Quantity of information
-    -V, --version                     Print version information
+    -v, --verbose <verbose>           Quantity of information
+
+SUBCOMMANDS:
+    delete -d --delete    Delete specific entry
+    edit -e --edit        Edit specific entry
+    help                  Print this message or the help of the given subcommand(s)
+    list -l --list        List entries
+    new -n --new          Create a new note
+    read -r --read        Display specific entry
+    search -s --search    Search entries for text
