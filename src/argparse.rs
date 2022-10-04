@@ -77,44 +77,41 @@ pub fn get_args() -> ArgMatches {
 
 pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
     let l_verbose = &matches.occurrences_of("verbose");
-    let cmd;
 
-    match matches.subcommand() {
+    let cmd = match matches.subcommand() {
         Some(("new", input)) => {
-            let s = input
-                .get_many::<String>("entry")
-                .map(|vals| vals.collect::<Vec<&String>>())
-                .unwrap();
-            // Below adapted from comment by mdonoughe
-            // https://stackoverflow.com/questions/56033289/join-iterator-of-str
-            let text = s.into_iter().fold(String::new(), |mut a, b| {
-                a.reserve(b.len() + 1);
-                a.push_str(b);
-                a.push(' ');
-                a
-            });
+            let text: String = match input.get_many::<String>("entry") {
+                Some(t) => t.fold(String::new(), |mut a, b| {
+                    a.reserve(b.len() + 1);
+                    a.push_str(b);
+                    a.push(' ');
+                    a
+                }),
+
+                None => text_from_editor(None).unwrap(),
+            };
             let e = Entry::new(text, dt_format);
-            cmd = Args::New(e);
+            Args::New(e)
         }
 
         Some(("list", input)) => {
             let n: usize = input.get_one::<String>("list").unwrap().parse().unwrap();
-            cmd = Args::List(n, *l_verbose);
+            Args::List(n, *l_verbose)
         }
 
         Some(("read", input)) => {
             let n: usize = input.get_one::<String>("read").unwrap().parse().unwrap();
-            cmd = Args::Read(n);
+            Args::Read(n)
         }
 
         Some(("edit", input)) => {
             let n: usize = input.get_one::<String>("edit").unwrap().parse().unwrap();
-            cmd = Args::Edit(n);
+            Args::Edit(n)
         }
 
         Some(("delete", input)) => {
             let n: usize = input.get_one::<String>("delete").unwrap().parse().unwrap();
-            cmd = Args::Delete(n, true);
+            Args::Delete(n, true)
         }
 
         Some(("search", input)) => {
@@ -123,62 +120,11 @@ pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
                 .unwrap()
                 .parse()
                 .unwrap();
-            cmd = Args::Search(q)
+            Args::Search(q)
         }
 
         _ => unreachable!(),
-    }
+    };
 
     cmd
-
-    // if matches.is_present("new") {
-    //     let text: String = if matches.index_of("new") == None {
-    //         text_from_editor(None).unwrap()
-    //     } else {
-    //         matches
-    //             .values_of("new")
-    //             .unwrap()
-    //             .collect::<Vec<&str>>()
-    //             .join(" ")
-    //     };
-    //     let e = Entry::new(text, dt_format);
-    //     cmd = Args::New(e);
-    // } else
-
-    // if matches.is_present("list") {
-    //     let n = matches
-    //         .value_of("list")
-    //         .unwrap_or("5")
-    //         .parse::<usize>()
-    //         .unwrap();
-    //     cmd = Args::List(n, *l_verbose);
-    // } else
-
-    // if matches.is_present("read") {
-    //     let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
-    //     cmd = Args::Read(n);
-    // } else
-
-    // if matches.is_present("edit") {
-    //     let n = matches.value_of("edit").unwrap().parse::<usize>().unwrap();
-    //     cmd = Args::Edit(n);
-    // } else
-
-    // if matches.is_present("delete") {
-    //     let n = matches
-    //         .value_of("delete")
-    //         .unwrap()
-    //         .parse::<usize>()
-    //         .unwrap();
-    //     cmd = Args::Delete(n, true);
-    // } else
-
-    // if matches.is_present("search") {
-    //     let q = Box::new(matches)
-    //         .value_of("search")
-    //         .unwrap()
-    //         .parse()
-    //         .unwrap();
-    //     cmd = Args::Search(q)
-    // };
 }
