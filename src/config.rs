@@ -37,7 +37,7 @@ pub fn read_config(
     // This should return the config file
     let config_file: NotebookCfg = match conf {
         Some(p) => confy::load_path(p).expect("Error reading config file."),
-        None => confy::load("notebook_rs").expect("Error reading default config file."),
+        None => confy::load("notebook_rs", "notebook_rs.toml").expect("Error reading default config file."),
     };
     //let notebook_name = notebook.unwrap();
 
