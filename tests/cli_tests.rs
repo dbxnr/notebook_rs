@@ -62,3 +62,14 @@ fn test_help() {
         .assert()
         .stdout_eq_path("tests/cmd/test_help.stdout");
 }
+
+#[test]
+fn test_search_regex() {
+    Command::new(cargo_bin!("nb"))
+    .arg("-c")
+    .arg("data/test_config.toml")
+    .arg("-s")
+    .arg("\\b\\w{10}\\b")
+    .assert()
+    .stdout_eq_path("tests/cmd/test_search_regex.stdout");
+}

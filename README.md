@@ -21,7 +21,7 @@ Performs a fairly simple sentiment analysis on the text by default, using a Rust
 -   `nb -r <n>` Display entry _n_
 -   `nb -e <n>` Edit entry _n_ in system editor
 -   `nb -d <n>` Delete entry _n_
--   `nb -s <pattern>` Search for pattern in entries
+-   `nb -s "<pattern>"` Search for pattern in entries, pattern should be enclosed in quotations
 
 ### Config settings
 

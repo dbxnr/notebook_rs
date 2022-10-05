@@ -59,7 +59,7 @@ pub fn get_args() -> ArgMatches {
             Command::new("search")
                 .short_flag('s')
                 .long_flag("search")
-                .about("Search entries for text")
+                .about("Query to search, enclosed in quotations")
                 .arg(Arg::new("search")),
         )
         .arg(
