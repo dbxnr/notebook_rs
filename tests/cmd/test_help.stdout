@@ -1,20 +1,18 @@
-Notebook 
-Note taking
+CLI utility for plaintext notetaking.
 
-USAGE:
-    nb [OPTIONS] <SUBCOMMAND>
+Usage: nb [OPTIONS] <COMMAND>
 
-OPTIONS:
-    -c, --config <config>             Path of config file to read
-    -h, --help                        Print help information
-    -j, --notebook <notebook_name>    Specify a notebook
-    -v, --verbose <verbose>           Quantity of information
+Commands:
+  new, -n, --new        Create a new note
+  list, -l, --list      List entries
+  edit, -e, --edit      Edit specific entry
+  read, -r, --read      Display specific entry
+  delete, -d, --delete  Delete specific entry
+  search, -s, --search  Search entries for text
+  help                  Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    delete -d --delete    Delete specific entry
-    edit -e --edit        Edit specific entry
-    help                  Print this message or the help of the given subcommand(s)
-    list -l --list        List entries
-    new -n --new          Create a new note
-    read -r --read        Display specific entry
-    search -s --search    Search entries for text
+Options:
+  -j, --notebook <notebook_name>  Specify a notebook name [default: default]
+  -v, --verbose...                Quantity of information
+  -c, --config <config>           Path of config file to read
+  -h, --help                      Print help information

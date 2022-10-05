@@ -114,7 +114,7 @@ impl Notebook {
         &self,
         n: &usize,
         mut stdout: W,
-        l_verbose: u64,
+        l_verbose: u8,
     ) -> Result<&Self, Box<dyn Error>> {
         // Iterates over last n elements of entries
         // Prints timestamp numbered by enumerate
