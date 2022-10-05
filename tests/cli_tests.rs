@@ -34,6 +34,28 @@ fn test_list_all() {
 }
 
 #[test]
+fn test_list_v1() {
+    Command::new(cargo_bin!("nb"))
+        .arg("-c")
+        .arg("data/test_config.toml")
+        .arg("-v")
+        .arg("-l")
+        .assert()
+        .stdout_eq_path("tests/cmd/test_list_v1.stdout");
+}
+
+#[test]
+fn test_list_v2() {
+    Command::new(cargo_bin!("nb"))
+        .arg("-c")
+        .arg("data/test_config.toml")
+        .arg("-vv")
+        .arg("-l")
+        .assert()
+        .stdout_eq_path("tests/cmd/test_list_v2.stdout");
+}
+
+#[test]
 fn test_help() {
     Command::new(cargo_bin!("nb"))
         .arg("-h")
