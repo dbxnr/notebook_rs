@@ -7,3 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - CHANGELOG file
+- Integration tests
+- Testing is part of CI
+
+### Bump
+- 'clap' from v2 to v4.1
