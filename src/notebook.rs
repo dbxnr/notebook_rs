@@ -58,7 +58,7 @@ impl Notebook {
             .open(path)
             .context(format!("unable to open or create '{}'", self.file))?;
 
-        file.write_all(format!("{}", entry).as_bytes())
+        file.write_all(format!("{entry}").as_bytes())
             .context(format!("unable to write to '{}'", self.file))?;
 
         Ok(self)
@@ -103,7 +103,7 @@ impl Notebook {
         let i = &self.entries.get(*n);
 
         match i {
-            Some(e) => write!(stdout, "{}", e).context("unable to display entry")?,
+            Some(e) => write!(stdout, "{e}").context("unable to display entry")?,
             None => writeln!(stdout, "No such entry.")?,
         }
 
@@ -218,7 +218,7 @@ impl Notebook {
                     .paint(self.entries[r.entry_idx].timestamp.to_string())
             )?;
             for (idx, c) in r.pattern.split(&self.entries[r.entry_idx].text).enumerate() {
-                write!(stdout, "{}", c)?;
+                write!(stdout, "{c}")?;
 
                 if let Some(c) = r.location.get(idx) {
                     write!(stdout, "{}", Red.paint(c))?;
