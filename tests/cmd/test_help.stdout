@@ -15,4 +15,4 @@ Options:
   -j, --notebook <notebook_name>  Specify a notebook name [default: default]
   -v, --verbose...                Quantity of information
   -c, --config <config>           Path of config file to read
-  -h, --help                      Print help information
+  -h, --help                      Print help
