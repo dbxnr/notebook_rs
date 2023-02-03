@@ -60,7 +60,14 @@ pub fn get_args() -> ArgMatches {
                 .short_flag('s')
                 .long_flag("search")
                 .about("Query to search, enclosed in quotations")
-                .arg(Arg::new("search")),
+                .arg(Arg::new("search"))
+                .subcommand(
+                    Command::new("date")
+                        .short_flag('d')
+                        .long_flag("date")
+                        .about("Search by date range")
+                        .arg(Arg::new("entry")),
+                ),
         )
         .arg(
             Arg::new("config")

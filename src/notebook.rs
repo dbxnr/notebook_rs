@@ -347,6 +347,11 @@ mod test_notebook {
     }
 
     #[test]
+    fn test_search_daterange() {
+        let mut nb: Notebook = create_notebook();
+    }
+
+    #[test]
     fn test_search_correct_location() {
         let mut nb = create_notebook();
         nb.search("Crowbillon".into()).unwrap();
