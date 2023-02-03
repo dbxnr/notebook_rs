@@ -1,133 +1,124 @@
 use crate::{text_from_editor, Args, Entry};
-use clap::{App, AppSettings, Arg, ArgMatches};
+use clap::{Arg, ArgMatches, Command};
 
 pub fn get_args() -> ArgMatches {
-    let matches = App::new("Notebook")
-        .version("0.2.1")
-        .author("")
-        .about("Note taking")
-        .setting(AppSettings::ArgRequiredElseHelp)
-        .arg(
-            Arg::new("new")
-                .short('n')
-                .long("new")
-                .takes_value(true)
-                .min_values(0)
-                .required(false)
-                .help("Create a new note")
-                .multiple_values(true)
-                .conflicts_with_all(&["list", "verbose", "edit", "read"]),
+    Command::new("Notebook")
+        .about("CLI utility for plaintext notetaking.")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+        .subcommand(
+            Command::new("new")
+                .short_flag('n')
+                .long_flag("new")
+                .about("Create a new note")
+                .arg(Arg::new("entry")),
         )
         .arg(
             Arg::new("notebook_name")
                 .short('j')
                 .long("notebook")
-                .takes_value(true)
-                .help("Specify a notebook"),
+                .default_value("default")
+                .help("Specify a notebook name"),
         )
-        .arg(
-            Arg::new("list")
-                .short('l')
-                .long("list")
-                .takes_value(true)
-                .min_values(0)
-                .help("List entries")
-                .conflicts_with_all(&["edit", "read"]),
+        .subcommand(
+            Command::new("list")
+                .short_flag('l')
+                .long_flag("list")
+                .about("List entries")
+                .arg(Arg::new("list").default_value("5")),
         )
         .arg(
             Arg::new("verbose")
                 .short('v')
                 .long("verbose")
-                .takes_value(false)
                 .help("Quantity of information")
-                .multiple_occurrences(true),
+                .action(clap::ArgAction::Count),
         )
-        .arg(
-            Arg::new("edit")
-                .short('e')
-                .long("edit")
-                .takes_value(true)
-                .max_values(1)
-                .help("Edit specific entry")
-                .conflicts_with_all(&["read"]),
+        .subcommand(
+            Command::new("edit")
+                .short_flag('e')
+                .long_flag("edit")
+                .about("Edit specific entry")
+                .arg(Arg::new("edit")),
         )
-        .arg(
-            Arg::new("read")
-                .short('r')
-                .long("read")
-                .takes_value(true)
-                .help("Display specific entry"),
+        .subcommand(
+            Command::new("read")
+                .short_flag('r')
+                .long_flag("read")
+                .about("Display specific entry")
+                .arg(Arg::new("read")),
         )
-        .arg(
-            Arg::new("delete")
-                .short('d')
-                .long("delete")
-                .takes_value(true)
-                .help("Delete specific entry"),
+        .subcommand(
+            Command::new("delete")
+                .short_flag('d')
+                .long_flag("delete")
+                .about("Delete specific entry")
+                .arg(Arg::new("delete")),
         )
-        .arg(
-            Arg::new("search")
-                .short('s')
-                .long("search")
-                .takes_value(true)
-                .help("Search entries for text"),
+        .subcommand(
+            Command::new("search")
+                .short_flag('s')
+                .long_flag("search")
+                .about("Query to search, enclosed in quotations")
+                .arg(Arg::new("search")),
         )
         .arg(
             Arg::new("config")
                 .short('c')
                 .long("config")
-                .takes_value(true)
                 .help("Path of config file to read"),
         )
-        .get_matches();
-
-    matches
+        .get_matches()
 }
 
 pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
-    let l_verbose = &matches.occurrences_of("verbose");
-    let mut cmd = Args::Unimplemented();
+    let verbose = matches.get_count("verbose");
 
-    if matches.is_present("new") {
-        let text: String = if matches.index_of("new") == None {
-            text_from_editor(None).unwrap()
-        } else {
-            matches
-                .values_of("new")
+    match matches.subcommand() {
+        Some(("new", input)) => {
+            let text: String = match input.get_many::<String>("entry") {
+                Some(t) => t.fold(String::new(), |mut a, b| {
+                    a.reserve(b.len() + 1);
+                    a.push_str(b);
+                    a.push(' ');
+                    a
+                }),
+
+                None => text_from_editor(None).unwrap(),
+            };
+            let e = Entry::new(text, dt_format);
+            Args::New(e)
+        }
+
+        Some(("list", input)) => {
+            let n: usize = input.get_one::<String>("list").unwrap().parse().unwrap();
+            Args::List(n, verbose)
+        }
+
+        Some(("read", input)) => {
+            let n: usize = input.get_one::<String>("read").unwrap().parse().unwrap();
+            Args::Read(n)
+        }
+
+        Some(("edit", input)) => {
+            let n: usize = input.get_one::<String>("edit").unwrap().parse().unwrap();
+            Args::Edit(n)
+        }
+
+        Some(("delete", input)) => {
+            let n: usize = input.get_one::<String>("delete").unwrap().parse().unwrap();
+            Args::Delete(n, true)
+        }
+
+        Some(("search", input)) => {
+            let q: String = Box::new(input)
+                .get_one::<String>("search")
                 .unwrap()
-                .collect::<Vec<&str>>()
-                .join(" ")
-        };
-        let e = Entry::new(text, dt_format);
-        cmd = Args::New(e);
-    } else if matches.is_present("list") {
-        let n = matches
-            .value_of("list")
-            .unwrap_or("5")
-            .parse::<usize>()
-            .unwrap();
-        cmd = Args::List(n, *l_verbose);
-    } else if matches.is_present("read") {
-        let n = matches.value_of("read").unwrap().parse::<usize>().unwrap();
-        cmd = Args::Read(n);
-    } else if matches.is_present("edit") {
-        let n = matches.value_of("edit").unwrap().parse::<usize>().unwrap();
-        cmd = Args::Edit(n);
-    } else if matches.is_present("delete") {
-        let n = matches
-            .value_of("delete")
-            .unwrap()
-            .parse::<usize>()
-            .unwrap();
-        cmd = Args::Delete(n, true);
-    } else if matches.is_present("search") {
-        let q = Box::new(matches)
-            .value_of("search")
-            .unwrap()
-            .parse()
-            .unwrap();
-        cmd = Args::Search(q)
-    };
+                .parse()
+                .unwrap();
+            Args::Search(q)
+        }
 
-    cmd
+        _ => unreachable!(),
+    }
 }

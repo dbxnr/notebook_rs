@@ -31,19 +31,20 @@ pub fn get_documents_dir() -> PathBuf {
 }
 
 pub fn read_config(
-    notebook: Option<&str>,
-    conf: Option<&str>,
+    notebook: &String,
+    conf: Option<&String>,
 ) -> Result<Notebook, confy::ConfyError> {
     // This should return the config file
     let config_file: NotebookCfg = match conf {
-        None => confy::load("notebook_rs").expect("Error reading config"),
-        Some(p) => confy::load_path(p).expect("Error reading config file"),
+        Some(p) => confy::load_path(p).expect("Error reading config file."),
+        None => confy::load("notebook_rs", "notebook_rs.toml")
+            .expect("Error reading default config file."),
     };
-    let notebook_name = notebook.unwrap_or("default");
+    //let notebook_name = notebook.unwrap();
 
     let notebook_cfg = config_file
         .notebooks
-        .get(notebook_name)
+        .get(notebook)
         .expect("Error parsing config - does notebook exist?")
         .to_owned();
 

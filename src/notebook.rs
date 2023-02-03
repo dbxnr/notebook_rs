@@ -58,7 +58,7 @@ impl Notebook {
             .open(path)
             .context(format!("unable to open or create '{}'", self.file))?;
 
-        file.write_all(format!("{}", entry).as_bytes())
+        file.write_all(format!("{entry}").as_bytes())
             .context(format!("unable to write to '{}'", self.file))?;
 
         Ok(self)
@@ -103,7 +103,7 @@ impl Notebook {
         let i = &self.entries.get(*n);
 
         match i {
-            Some(e) => write!(stdout, "{}", e).context("unable to display entry")?,
+            Some(e) => write!(stdout, "{e}").context("unable to display entry")?,
             None => writeln!(stdout, "No such entry.")?,
         }
 
@@ -114,31 +114,23 @@ impl Notebook {
         &self,
         n: &usize,
         mut stdout: W,
-        l_verbose: u64,
+        verbose: u8,
     ) -> Result<&Self, Box<dyn Error>> {
         // Iterates over last n elements of entries
         // Prints timestamp numbered by enumerate
-        // TODO: Indexing starts from zero, possibly change to 1?
 
         let i = cmp::min(self.entries.len(), *n);
 
-        if l_verbose > 0 {
-            for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-                let substr = &e.1.text[..cmp::min(30, e.1.text.len())];
-                writeln!(
-                    stdout,
-                    "{}. {}... | {}",
-                    e.0,
-                    substr,
-                    e.1.timestamp.format(&self.dt_format)
-                )
-                .context("unable to parse entry")?;
-            }
-        } else {
-            for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
-                writeln!(stdout, "{}. {}", e.0, e.1.timestamp.format(&self.dt_format))
-                    .context("unable to parse entry")?;
-            }
+        for e in self.entries.iter().enumerate().skip(self.entries.len() - i) {
+            let substr = &e.1.text[..cmp::min(usize::from(verbose + 1) * 50, e.1.text.len())];
+            writeln!(
+                stdout,
+                "{}: {}\t{}…",
+                Style::new().bold().paint(e.0.to_string()),
+                Style::new().bold().paint(e.1.timestamp.to_string()),
+                substr,
+            )
+            .context("Error parsing something to string.")?;
         }
 
         Ok(self)
@@ -226,7 +218,7 @@ impl Notebook {
                     .paint(self.entries[r.entry_idx].timestamp.to_string())
             )?;
             for (idx, c) in r.pattern.split(&self.entries[r.entry_idx].text).enumerate() {
-                write!(stdout, "{}", c)?;
+                write!(stdout, "{c}")?;
 
                 if let Some(c) = r.location.get(idx) {
                     write!(stdout, "{}", Red.paint(c))?;
@@ -273,7 +265,10 @@ mod test_notebook {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.list_entries(&1, &mut stdout, 0).unwrap();
-        assert_eq!(stdout, b"3. Thursday 13 May, 2021 - 22:17\n");
+        assert!(stdout.starts_with(
+            "\u{1b}[1m3\u{1b}[0m: \u{1b}[1m2021-05-13 22:17:00\u{1b}[0m\tA".as_bytes()
+        ));
+        assert!(stdout.ends_with("happened: Lupin is disch…\n".as_bytes()));
     }
 
     #[test]
@@ -281,10 +276,10 @@ mod test_notebook {
         let mut stdout = vec![];
         let nb = create_notebook();
         nb.list_entries(&1, &mut stdout, 1).unwrap();
-        assert_eq!(
-            stdout,
-            b"3. A terrible misfortune has happ... | Thursday 13 May, 2021 - 22:17\n"
-        )
+        assert!(stdout.starts_with(
+            "\u{1b}[1m3\u{1b}[0m: \u{1b}[1m2021-05-13 22:17:00\u{1b}[0m\tA".as_bytes()
+        ));
+        assert!(stdout.ends_with("Mr. Perkupp’s office; and I scarcely …\n".as_bytes()));
     }
 
     #[test]

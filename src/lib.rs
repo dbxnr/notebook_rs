@@ -12,7 +12,7 @@ pub mod notebook;
 #[derive(Clone, Debug)]
 pub enum Args {
     New(Entry),
-    List(usize, u64),
+    List(usize, u8),
     Read(usize),
     Edit(usize),
     Delete(usize, bool),
