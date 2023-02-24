@@ -348,7 +348,7 @@ mod test_notebook {
 
     #[test]
     fn test_search_daterange() {
-        let mut nb: Notebook = create_notebook();
+        let _nb: Notebook = create_notebook();
     }
 
     #[test]
