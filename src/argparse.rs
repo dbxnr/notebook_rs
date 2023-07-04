@@ -118,31 +118,19 @@ pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
         }
 
         Some(("search", input)) => {
-            //let search_command = input.subcommand();
             let mut q = String::new();
-            match input.subcommand().unwrap() {
-                ("date", _sub_matches) => {
-                    q = "Hello".to_string();
-                    println!("Date found")
+            let search_command = input.subcommand().unwrap_or(("search", input));
+            match search_command {
+                ("date", _sub_matches) => Args::SearchDate(q),
+                ("search", _sub_matches) => {
+                    q = Box::new(input).get_one::<String>("search").unwrap().into();
+                    Args::Search(q)
                 }
-                (_, _) => {
-                    q = Box::new(input)
-                        .get_one::<String>("search")
-                        .unwrap()
-                        .parse()
-                        .unwrap();
+                (name, _) => {
+                    unreachable!("Unsupported subcommand `{name}`")
                 }
             }
-
-            Args::Search(q)
         }
-
-        Some(("date", input)) => {
-            print!("date");
-            let n: usize = input.get_one::<String>("delete").unwrap().parse().unwrap();
-            Args::Delete(n, true)
-        }
-
         _ => unreachable!(),
     }
 }
