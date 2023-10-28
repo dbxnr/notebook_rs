@@ -50,10 +50,17 @@ pub fn get_args() -> ArgMatches {
         )
         .subcommand(
             Command::new("delete")
-                .short_flag('d')
+                .short_flag('X')
                 .long_flag("delete")
                 .about("Delete specific entry")
                 .arg(Arg::new("delete")),
+        )
+        .subcommand(
+            Command::new("date search")
+                .short_flag('d')
+                .long_flag("date-search")
+                .about("Search for entries around a date")
+                .arg(Arg::new("datesearch")),
         )
         .subcommand(
             Command::new("search")
@@ -65,7 +72,7 @@ pub fn get_args() -> ArgMatches {
                     Command::new("date")
                         .short_flag('d')
                         .long_flag("date")
-                        .about("Search by date range")
+                        .about("Filter results by date range")
                         .arg(Arg::new("entry")),
                 ),
         )
@@ -121,7 +128,7 @@ pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
             let mut q = String::new();
             let search_command = input.subcommand().unwrap_or(("search", input));
             match search_command {
-                ("date", _sub_matches) => Args::SearchDate(q),
+                ("date", _sub_matches) => Args::DateFilter(q),
                 ("search", _sub_matches) => {
                     q = input.get_one::<String>("search").unwrap().into();
                     Args::Search(q)
@@ -131,6 +138,12 @@ pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
                 }
             }
         }
+
+        Some(("date search", input)) => {
+            let date = input.get_one::<String>("search").unwrap().into();
+            Args::DateSearch(date)
+        }
+
         _ => unreachable!(),
     }
 }

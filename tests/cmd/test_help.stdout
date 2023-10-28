@@ -3,13 +3,14 @@ CLI utility for plaintext notetaking.
 Usage: nb [OPTIONS] <COMMAND>
 
 Commands:
-  new, -n, --new        Create a new note
-  list, -l, --list      List entries
-  edit, -e, --edit      Edit specific entry
-  read, -r, --read      Display specific entry
-  delete, -d, --delete  Delete specific entry
-  search, -s, --search  Query to search, enclosed in quotations
-  help                  Print this message or the help of the given subcommand(s)
+  new, -n, --new                  Create a new note
+  list, -l, --list                List entries
+  edit, -e, --edit                Edit specific entry
+  read, -r, --read                Display specific entry
+  delete, -X, --delete            Delete specific entry
+  date search, -d, --date-search  Search for entries around a date
+  search, -s, --search            Query to search, enclosed in quotations
+  help                            Print this message or the help of the given subcommand(s)
 
 Options:
   -j, --notebook <notebook_name>  Specify a notebook name [default: default]

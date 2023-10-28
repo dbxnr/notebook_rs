@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration tests
 - Testing is part of CI
 
+### Changed
+
+- Short flag for deleting an entry is now `-X`
+
+
 ### Dependencies
 
 - `clap` from v2 to v4.4

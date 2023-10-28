@@ -17,7 +17,8 @@ pub enum Args {
     Edit(usize),
     Delete(usize, bool),
     Search(String),
-    SearchDate(String),
+    DateFilter(String),
+    DateSearch(String),
     Unimplemented(),
 }
 

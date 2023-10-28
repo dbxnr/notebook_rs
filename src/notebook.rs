@@ -178,7 +178,8 @@ impl Notebook {
                 .search(s)
                 .unwrap()
                 .output_search_results(&mut io::stdout()),
-            Args::SearchDate(_s) => panic!("Not implemented"),
+            Args::DateFilter(_s) => panic!("Not implemented"),
+            Args::DateSearch(_s) => panic!("Not implemented"),
             Args::Unimplemented() => panic!("Not implemented"),
         }
         .expect("Error matching command");
@@ -202,6 +203,11 @@ impl Notebook {
             }
         }
 
+        Ok(self)
+    }
+
+    fn _date_search(&mut self, q: String) -> Result<&Self, Box<dyn Error>> {
+        dbg!(&q);
         Ok(self)
     }
 
