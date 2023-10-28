@@ -28,4 +28,4 @@ name = "nb"
 path = "src/main.rs"
 
 [dev-dependencies]
-snapbox = "0.4.11"
+snapbox = "~0.4"
