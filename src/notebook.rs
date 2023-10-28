@@ -178,7 +178,7 @@ impl Notebook {
                 .search(s)
                 .unwrap()
                 .output_search_results(&mut io::stdout()),
-            Args::SearchDate(s) => panic!("Not implemented"),
+            Args::SearchDate(_s) => panic!("Not implemented"),
             Args::Unimplemented() => panic!("Not implemented"),
         }
         .expect("Error matching command");

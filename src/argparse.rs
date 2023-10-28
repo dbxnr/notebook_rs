@@ -123,7 +123,7 @@ pub fn parse_args(matches: ArgMatches, dt_format: &str) -> Args {
             match search_command {
                 ("date", _sub_matches) => Args::SearchDate(q),
                 ("search", _sub_matches) => {
-                    q = Box::new(input).get_one::<String>("search").unwrap().into();
+                    q = input.get_one::<String>("search").unwrap().into();
                     Args::Search(q)
                 }
                 (name, _) => {
