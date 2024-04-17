@@ -53,7 +53,11 @@ pub fn read_config(
 
 pub fn check_create_file(path: &String) -> Result<PathBuf, Box<dyn Error>> {
     let p = PathBuf::from(path);
-    OpenOptions::new().write(true).create(true).open(&p)?;
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(&p)?;
     Ok(p)
 }
 
