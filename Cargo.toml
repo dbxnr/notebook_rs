@@ -1,6 +1,6 @@
 [package]
 name = "notebook_rs"
-version = "0.5.1"
+version = "0.5.2"
 authors = ["K Malachi Mulligan <kevinmalachimulligan@protonmail.com>"]
 edition = "2021"
 repository = "https://github.com/dbxnr/notebook_rs"
@@ -15,12 +15,12 @@ exclude = ["data/*"]
 [dependencies]
 ansi_term = "~0.12"
 anyhow = "~1.0"
-directories = "~5.0"
+directories = "~6"
 chrono = "~0.4"
 clap = "~4.5"
-confy = "~0.6"
-humantime = "~2.1"
-regex = "~1.10"
+confy = "~1"
+humantime = "~2.3"
+regex = "~1.11"
 serde = { version = "~1.0", features = ["derive"] }
 vader_sentiment = "~0.1"
 
@@ -29,4 +29,4 @@ name = "nb"
 path = "src/main.rs"
 
 [dev-dependencies]
-snapbox = "~0.5"
+snapbox = "~0.6"
