@@ -1,3 +1,8 @@
+#[expect(
+    deprecated,
+    reason = "cargo_bin is deprecated, cargo_bin! is not, `use` does not differentiate them"
+)]
+
 use snapbox::cmd::cargo_bin;
 use snapbox::cmd::Command;
 use snapbox::file;
